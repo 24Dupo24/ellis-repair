@@ -139,13 +139,14 @@
                         const pdfList = data
                             .filter(file => file.name.toLowerCase().endsWith('.pdf'))
                             .map((file, index) => {
-                                const directUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`;
+                                // Updated to use GitHub Pages URL to ensure browser-inline viewing
+                                const viewerUrl = `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`;
                                 return {
                                     id: `gh-${index}`,
                                     name: file.name.replace(/_/g, ' ').replace('.pdf', ''),
                                     file: file.name,
                                     type: 'github',
-                                    url: directUrl,
+                                    url: viewerUrl,
                                     brand: getBrandInfo(file.name)
                                 };
                             });
@@ -245,7 +246,7 @@
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
-                        {/* Sidebar - Updated with Responsive Toggle Logic */}
+                        {/* Sidebar */}
                         <aside className={`
                             fixed inset-0 z-40 bg-slate-950 transition-all duration-300 ease-in-out transform
                             ${isMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
@@ -280,7 +281,7 @@
                                     <button 
                                         key={machine.id} 
                                         onClick={() => handleSelectMachine(machine)} 
-                                        className={`w-full text-left p-3 rounded-lg mb-1 flex items-center justify-between transition-all group ${selectedMachine?.id === machine.id ? 'sidebar-item-active shadow-lg shadow-red-900/20' : 'hover:bg-slate-800/50'}`}
+                                        className={`w-full text-left p-3 rounded-lg mb-1 flex items-center justify-between transition-all group ${selectedMachine?.id === machine.id ? 'sidebar-item-active shadow-lg shadow-red-900/20' : 'hover:bg-slate-900/50'}`}
                                     >
                                         <div className="flex flex-col gap-1.5 min-w-0 flex-1 pr-2">
                                             <div className="flex items-center gap-2">
@@ -343,7 +344,7 @@
                                     <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mb-6 border border-slate-800 shadow-2xl shadow-red-900/5">
                                         <Icons.BookOpen className="w-6 h-6 text-slate-700" />
                                     </div>
-                                    <h2 className="text-lg font-black text-slate-400 mb-2 tracking-[0.3em] uppercase">Ready for Service</h2>
+                                    <h2 className="text-lg font-black text-slate-400 mb-2 tracking-[0.3em] uppercase tracking-widest">Ready for Service</h2>
                                     <p className="max-w-[240px] text-[10px] text-slate-600 leading-relaxed font-bold uppercase tracking-widest">
                                         Identify unit & select schematic from library to begin.
                                     </p>
