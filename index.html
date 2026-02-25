@@ -103,7 +103,6 @@
             if (n.includes('FETCO')) return { label: 'FETCO', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' };
             if (n.includes('GRIND')) return { label: 'GRINDMASTER', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' };
             if (n.includes('SIMONELLI')) return { label: 'SIMONELLI', color: 'bg-sky-500/10 text-sky-400 border-sky-500/20' };
-            // Tagging Bistro files as Newco per request
             if (n.includes('NEWCO') || n.includes('BISTRO')) return { label: 'NEWCO', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' };
             if (n.includes('FLAVIA')) return { label: 'FLAVIA', color: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20' };
             if (n.includes('EVOCA')) return { label: 'EVOCA', color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' };
@@ -172,7 +171,22 @@
             };
 
             const filteredMachines = useMemo(() => {
-                return machines.filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase()));
+                return machines
+                    .filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                    .sort((a, b) => {
+                        // Sort primarily by Brand Label
+                        const brandA = a.brand.label.toUpperCase();
+                        const brandB = b.brand.label.toUpperCase();
+                        if (brandA < brandB) return -1;
+                        if (brandA > brandB) return 1;
+                        
+                        // Sort secondarily by Machine Name
+                        const nameA = a.name.toUpperCase();
+                        const nameB = b.name.toUpperCase();
+                        if (nameA < nameB) return -1;
+                        if (nameA > nameB) return 1;
+                        return 0;
+                    });
             }, [searchQuery, machines]);
 
             const handleSelectMachine = (machine) => {
