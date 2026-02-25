@@ -178,13 +178,18 @@
                             .filter(file => file.name.toLowerCase().endsWith('.pdf'))
                             .map((file, index) => {
                                 const viewerUrl = `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`;
+                                const isMasterFile = file.name.toLowerCase().replace(/_/g, ' ').includes('ellis parts list complete');
+                                
                                 return {
                                     id: `gh-${index}`,
-                                    name: file.name.replace(/_/g, ' ').replace('.pdf', ''),
+                                    name: isMasterFile ? "MASTER STOCK INVENTORY" : file.name.replace(/_/g, ' ').replace('.pdf', ''),
                                     file: file.name,
                                     type: 'github',
                                     url: viewerUrl,
-                                    brand: getBrandInfo(file.name)
+                                    brand: isMasterFile 
+                                        ? { label: 'STOCK', color: 'bg-red-600 text-white border-red-500 font-black shadow-inner' }
+                                        : getBrandInfo(file.name),
+                                    isMaster: isMasterFile
                                 };
                             });
                         setMachines(pdfList);
@@ -204,10 +209,15 @@
                 return machines
                     .filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase()))
                     .sort((a, b) => {
+                        // Pin Master Stock List to Top
+                        if (a.isMaster) return -1;
+                        if (b.isMaster) return 1;
+                        
                         const brandA = a.brand.label.toUpperCase();
                         const brandB = b.brand.label.toUpperCase();
                         if (brandA < brandB) return -1;
                         if (brandA > brandB) return 1;
+                        
                         const nameA = a.name.toUpperCase();
                         const nameB = b.name.toUpperCase();
                         if (nameA < nameB) return -1;
@@ -365,7 +375,7 @@
                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
                                     <span>Cloud Active</span>
                                 </div>
-                                <div className="flex items-center gap-1.5"><Icons.Cpu /><span>v1.2.7-PRO</span></div>
+                                <div className="flex items-center gap-1.5"><Icons.Cpu /><span>v1.2.8-REPAIR</span></div>
                             </div>
                         </aside>
 
