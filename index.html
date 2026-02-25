@@ -11,9 +11,10 @@
     <style>
         body, html { height: 100%; margin: 0; overflow: hidden; background-color: #0f172a; }
         iframe { background-color: #1e293b; border: none; width: 100%; height: 100%; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .pdf-container { position: relative; height: 100%; width: 100%; overflow: hidden; }
     </style>
 </head>
 <body>
@@ -38,8 +39,7 @@
             FileText: ({ className }) => <Icon className={className || "w-5 h-5"} path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></>} />,
             Refresh: () => <Icon className="w-4 h-4 animate-spin" path={<><path d="M21 12a9 9 0 1 1-6.219-8.56"/><path d="M22 2v6h-6"/></>} />,
             Plus: () => <Icon path={<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>} />,
-            ExternalLink: () => <Icon className="w-4 h-4" path={<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>} />,
-            AlertCircle: () => <Icon className="w-12 h-12 text-slate-700" path={<><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></>} />
+            ExternalLink: () => <Icon className="w-4 h-4" path={<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>} />
         };
 
         const GITHUB_USERNAME = "24Dupo24"; 
@@ -67,20 +67,20 @@
                         const pdfList = data
                             .filter(file => file.name.toLowerCase().endsWith('.pdf'))
                             .map((file, index) => {
-                                // DIRECT RAW URL CONSTRUCTION
-                                // This bypasses the GitHub Pages build process
-                                const directUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`;
+                                // Since Pages is active, we can use the standard URL, 
+                                // but keep raw as an internal backup
+                                const standardUrl = `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`;
                                 return {
                                     id: `gh-${index}`,
                                     name: file.name.replace(/_/g, ' ').replace('.pdf', ''),
                                     file: file.name,
                                     type: 'github',
-                                    url: directUrl
+                                    url: standardUrl
                                 };
                             });
                         setMachines(prev => [...prev.filter(m => m.type !== 'github'), ...pdfList]);
                     } else {
-                        throw new Error(`The folder "${BASE_PDF_PATH}" was not found.`);
+                        throw new Error(`Cloud folder not found. Check if /work exists.`);
                     }
                 } catch (err) {
                     setError(err.message);
@@ -97,7 +97,7 @@
                 const files = Array.from(e.target.files);
                 const localPdfs = files.filter(f => f.type === "application/pdf").map((file, index) => ({
                     id: `local-${Date.now()}-${index}`,
-                    name: `[LOCAL] ${file.name.replace('.pdf', '')}`,
+                    name: `[OFFLINE] ${file.name.replace('.pdf', '')}`,
                     file: file.name,
                     type: 'local',
                     url: URL.createObjectURL(file)
@@ -123,114 +123,107 @@
 
             return (
                 <div className="flex flex-col h-screen bg-slate-900 text-white font-sans overflow-hidden">
-                    <header className="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center z-50 shadow-lg shrink-0">
+                    {/* Compact Header */}
+                    <header className="bg-slate-800 border-b border-slate-700 p-3 flex justify-between items-center z-50 shadow-md shrink-0">
                         <div className="flex items-center gap-2">
-                            <div className="bg-red-600 p-1.5 rounded-lg flex items-center justify-center shadow-lg shadow-red-900/20">
-                                <Icons.Zap className="w-5 h-5 text-white" />
+                            <div className="bg-red-600 p-1.5 rounded-lg shadow-lg shadow-red-900/40">
+                                <Icons.Zap className="w-4 h-4 text-white" />
                             </div>
-                            <h1 className="font-bold tracking-tight text-lg uppercase leading-none">Ellis Coffee <span className="font-light text-slate-400 italic block text-[10px] mt-0.5">Parts Finder</span></h1>
+                            <div>
+                                <h1 className="font-black text-sm uppercase tracking-tighter leading-none">Ellis Coffee</h1>
+                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Repair Library</span>
+                            </div>
                         </div>
-                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 hover:bg-slate-700 rounded-full transition-colors active:scale-95">
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 hover:bg-slate-700 rounded-full transition-colors active:scale-90">
                             {isMenuOpen ? <Icons.X /> : <Icons.Menu />}
                         </button>
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
-                        <aside className={`fixed inset-0 z-40 bg-slate-900 transition-transform duration-300 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:w-80 border-r border-slate-800 flex flex-col shadow-2xl md:shadow-none`}>
-                            <div className="p-4 bg-slate-900 space-y-3">
+                        {/* Sidebar */}
+                        <aside className={`fixed inset-0 z-40 bg-slate-900 transition-transform duration-300 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:w-72 border-r border-slate-800 flex flex-col shadow-2xl md:shadow-none`}>
+                            <div className="p-4 bg-slate-900 border-b border-slate-800/50 space-y-3">
                                 <div className="relative group">
                                     <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-red-500 transition-colors"><Icons.Search /></div>
                                     <input
                                         type="text"
                                         placeholder="Search manuals..."
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-red-500/50 text-sm transition-all"
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-red-500/50 text-sm transition-all"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
                                 </div>
-                                
-                                <label className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2 px-4 cursor-pointer transition-colors text-[10px] font-bold text-slate-400 active:scale-95 uppercase tracking-widest">
-                                    <Icons.Plus /> Load Manual Files
+                                <label className="flex items-center justify-center gap-2 bg-slate-800/50 hover:bg-slate-700 border border-slate-700/50 rounded-xl py-2 px-4 cursor-pointer transition-colors text-[10px] font-black text-slate-400 active:scale-95 uppercase tracking-widest">
+                                    <Icons.Plus /> Load Extra File
                                     <input type="file" multiple accept="application/pdf" className="hidden" onChange={handleLocalUpload} />
                                 </label>
                             </div>
                             
-                            <div className="flex-1 overflow-y-auto px-2 pb-24 custom-scrollbar">
-                                <div className="flex justify-between items-center px-4 py-2">
-                                    <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Manuals ({filteredMachines.length})</h3>
+                            <div className="flex-1 overflow-y-auto px-2 pb-24 custom-scrollbar bg-slate-900/50">
+                                <div className="flex justify-between items-center px-4 py-3">
+                                    <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Manuals ({filteredMachines.length})</h3>
                                     {isLoading && <Icons.Refresh />}
                                 </div>
                                 
                                 {error && (
-                                    <div className="mx-2 mb-4 p-3 bg-red-900/20 border border-red-900/50 rounded-lg text-[10px] text-red-200 leading-tight">
-                                        {error}
-                                        <button onClick={fetchFiles} className="block mt-2 font-bold text-red-400 uppercase">Retry Sync</button>
+                                    <div className="mx-2 mb-4 p-3 bg-red-900/10 border border-red-500/20 rounded-lg text-center">
+                                        <p className="text-[10px] text-red-400 font-bold uppercase mb-2">Sync Error</p>
+                                        <button onClick={fetchFiles} className="text-[10px] bg-red-600 text-white px-3 py-1 rounded font-bold uppercase">Retry</button>
                                     </div>
                                 )}
 
                                 {filteredMachines.map(machine => (
-                                    <button key={machine.id} onClick={() => handleSelectMachine(machine)} className={`w-full text-left p-4 rounded-xl mb-1 flex items-center justify-between transition-all active:scale-[0.98] ${selectedMachine?.id === machine.id ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'hover:bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700'}`}>
-                                        <div className="flex items-center gap-3 min-w-0 shrink-0 flex-1">
-                                            <Icons.FileText className={selectedMachine?.id === machine.id ? 'text-white' : (machine.type === 'local' ? 'text-blue-400' : 'text-slate-600')} />
-                                            <span className="font-medium text-sm truncate">{machine.name}</span>
+                                    <button key={machine.id} onClick={() => handleSelectMachine(machine)} className={`w-full text-left p-3.5 rounded-xl mb-1 flex items-center justify-between transition-all active:scale-[0.97] ${selectedMachine?.id === machine.id ? 'bg-red-600 text-white shadow-lg shadow-red-900/30' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}>
+                                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                                            <Icons.FileText className={selectedMachine?.id === machine.id ? 'text-white' : (machine.type === 'local' ? 'text-blue-500' : 'text-slate-600')} />
+                                            <span className="font-bold text-xs truncate uppercase tracking-tight">{machine.name}</span>
                                         </div>
-                                        <Icons.ChevronRight className="shrink-0 opacity-40" />
+                                        <Icons.ChevronRight className={selectedMachine?.id === machine.id ? 'opacity-100' : 'opacity-20'} />
                                     </button>
                                 ))}
                             </div>
                         </aside>
 
+                        {/* Viewer */}
                         <main className="flex-1 bg-slate-950 flex flex-col relative overflow-hidden">
                             {selectedMachine ? (
                                 <>
                                     <div className="flex-1 w-full bg-slate-800 relative">
-                                        <iframe key={`${selectedMachine.id}-${pdfPage}`} src={pdfUrl} className="w-full h-full" title="PDF Viewer" />
+                                        <div className="pdf-container">
+                                            <iframe key={`${selectedMachine.id}-${pdfPage}`} src={pdfUrl} title="PDF Viewer" />
+                                        </div>
                                         
-                                        {/* Fallback overlay in case of iframe blocking or 404 */}
                                         <div className="absolute top-4 right-4 flex flex-col gap-2">
-                                            <a 
-                                                href={selectedMachine.url} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer" 
-                                                className="bg-slate-900/90 p-3 rounded-full hover:bg-slate-900 transition-colors shadow-2xl border border-slate-700 flex items-center justify-center" 
-                                                title="Open direct file link"
-                                            >
+                                            <a href={selectedMachine.url} target="_blank" rel="noopener noreferrer" className="bg-slate-900/90 p-3 rounded-full hover:bg-red-600 transition-colors shadow-2xl border border-slate-700 flex items-center justify-center text-white" title="Open Fullscreen">
                                                 <Icons.ExternalLink />
                                             </a>
                                         </div>
-
-                                        <div className="absolute inset-0 -z-10 flex flex-col items-center justify-center p-6 text-center">
-                                            <Icons.AlertCircle />
-                                            <p className="mt-4 text-slate-400 text-sm font-medium leading-relaxed">If the manual doesn't appear above,<br/>tap the red button below.</p>
-                                            <a 
-                                                href={selectedMachine.url} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                className="mt-6 bg-red-600 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-2xl active:scale-95"
-                                            >
-                                                Open Manual Directly
-                                            </a>
-                                        </div>
                                     </div>
-                                    <div className="bg-slate-900/90 backdrop-blur-md border-t border-slate-800 p-4 flex gap-3 shadow-lg shrink-0">
-                                        <button onClick={() => jumpToPage(10)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[10px] uppercase transition-all active:scale-95 tracking-widest">
-                                            <Icons.BookOpen /> Exploded View
+                                    
+                                    {/* Action Bar */}
+                                    <div className="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex gap-2 shadow-2xl shrink-0">
+                                        <button onClick={() => jumpToPage(1)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-3 px-2 rounded-xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
+                                            <Icons.BookOpen className="w-4 h-4" /> Parts
                                         </button>
-                                        <button onClick={() => jumpToPage(25)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[10px] uppercase transition-all active:scale-95 tracking-widest">
-                                            <Icons.Zap className="text-yellow-400 w-4 h-4" /> Wiring Map
+                                        <button onClick={() => jumpToPage(5)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-3 px-2 rounded-xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
+                                            <Icons.Zap className="text-yellow-500 w-4 h-4" /> Wiring
                                         </button>
                                     </div>
                                 </>
                             ) : (
                                 <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-                                    <div className="w-24 h-24 bg-slate-900/50 rounded-full flex items-center justify-center mb-6 border border-slate-800/50 shadow-inner">
-                                        <Icons.BookOpen className="w-10 h-10 text-slate-700" />
+                                    <div className="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center mb-6 border border-slate-800 shadow-2xl">
+                                        <Icons.BookOpen className="w-8 h-8 text-slate-600" />
                                     </div>
-                                    <h2 className="text-2xl font-black text-slate-200 mb-3 tracking-[0.2em] uppercase">Ellis Coffee</h2>
-                                    <p className="max-w-[280px] text-sm text-slate-500 leading-relaxed font-medium">
-                                        Select a manual from the list to begin.
+                                    <h2 className="text-xl font-black text-slate-200 mb-2 tracking-[0.2em] uppercase">Ellis Library</h2>
+                                    <p className="max-w-[240px] text-[11px] text-slate-500 leading-relaxed font-bold uppercase tracking-wider">
+                                        Select a schematic from the sidebar to begin repair.
                                     </p>
-                                    {!isMenuOpen && <button onClick={() => setIsMenuOpen(true)} className="mt-8 bg-red-600 hover:bg-red-500 text-white px-10 py-3 rounded-full font-bold text-sm shadow-xl transition-all active:scale-95 uppercase tracking-widest">Open List</button>}
+                                    {!isMenuOpen && (
+                                        <button onClick={() => setIsMenuOpen(true)} className="mt-8 bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-full font-black text-[10px] shadow-xl transition-all active:scale-95 uppercase tracking-widest">
+                                            Show List
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </main>
