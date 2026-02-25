@@ -37,7 +37,8 @@
             ChevronRight: () => <Icon className="w-4 h-4" path={<path d="m9 18 6-6-6-6"/>} />,
             FileText: ({ className }) => <Icon className={className || "w-5 h-5"} path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></>} />,
             Refresh: () => <Icon className="w-4 h-4 animate-spin" path={<><path d="M21 12a9 9 0 1 1-6.219-8.56"/><path d="M22 2v6h-6"/></>} />,
-            Plus: () => <Icon path={<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>} />
+            Plus: () => <Icon path={<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>} />,
+            ExternalLink: () => <Icon className="w-4 h-4" path={<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>} />
         };
 
         const GITHUB_USERNAME = "24Dupo24"; 
@@ -57,6 +58,7 @@
                 setIsLoading(true);
                 setError(null);
                 try {
+                    // Cache bust the API call
                     const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${BASE_PDF_PATH}?t=${Date.now()}`;
                     const response = await fetch(url);
                     
@@ -69,12 +71,15 @@
                                 name: file.name.replace(/_/g, ' ').replace('.pdf', ''),
                                 file: file.name,
                                 type: 'github',
-                                url: `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`
+                                // Use raw.githubusercontent for more direct access if Pages is lagging
+                                url: `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`
                             }));
                         setMachines(prev => [...prev.filter(m => m.type !== 'github'), ...pdfList]);
+                    } else {
+                        throw new Error(`Folder "${BASE_PDF_PATH}" not found yet. It may still be processing.`);
                     }
                 } catch (err) {
-                    console.log("GitHub sync skipped or failed:", err.message);
+                    setError(err.message);
                 } finally {
                     setIsLoading(false);
                 }
@@ -152,6 +157,13 @@
                                     {isLoading && <Icons.Refresh />}
                                 </div>
                                 
+                                {error && (
+                                    <div className="mx-2 mb-4 p-3 bg-red-900/20 border border-red-900/50 rounded-lg text-[10px] text-red-200 leading-tight">
+                                        {error}
+                                        <button onClick={fetchFiles} className="block mt-2 font-bold text-red-400 uppercase">Retry Sync</button>
+                                    </div>
+                                )}
+
                                 {filteredMachines.map(machine => (
                                     <button key={machine.id} onClick={() => handleSelectMachine(machine)} className={`w-full text-left p-4 rounded-xl mb-1 flex items-center justify-between transition-all active:scale-[0.98] ${selectedMachine?.id === machine.id ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'}`}>
                                         <div className="flex items-center gap-3 min-w-0">
@@ -161,12 +173,6 @@
                                         <Icons.ChevronRight />
                                     </button>
                                 ))}
-                                
-                                {machines.length === 0 && !isLoading && (
-                                    <div className="p-8 text-center text-slate-600 text-xs italic">
-                                        No manuals found. Use the button above to load files from your phone.
-                                    </div>
-                                )}
                             </div>
                         </aside>
 
@@ -175,6 +181,11 @@
                                 <>
                                     <div className="flex-1 w-full bg-slate-800 relative">
                                         <iframe key={`${selectedMachine.id}-${pdfPage}`} src={pdfUrl} className="w-full h-full" title="PDF Viewer" />
+                                        <div className="absolute top-2 right-2 flex flex-col gap-2">
+                                            <a href={selectedMachine.url} target="_blank" rel="noopener noreferrer" className="bg-slate-900/80 p-2 rounded-full hover:bg-slate-900 transition-colors shadow-lg" title="Open PDF in new tab">
+                                                <Icons.ExternalLink />
+                                            </a>
+                                        </div>
                                     </div>
                                     <div className="bg-slate-900/90 backdrop-blur-md border-t border-slate-800 p-4 flex gap-3 shadow-lg shrink-0">
                                         <button onClick={() => jumpToPage(10)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-4 rounded-xl flex items-center justify-center gap-2 font-bold text-xs uppercase transition-all active:scale-95">
@@ -192,7 +203,7 @@
                                     </div>
                                     <h2 className="text-2xl font-black text-slate-200 mb-3 tracking-tight uppercase">Parts Locator</h2>
                                     <p className="max-w-[280px] text-sm text-slate-500 leading-relaxed font-medium">
-                                        Use the "Load Offline PDFs" button or wait for GitHub to sync.
+                                        Check the sidebar list. If it's empty, GitHub is still processing your 45+ files.
                                     </p>
                                     {!isMenuOpen && <button onClick={() => setIsMenuOpen(true)} className="mt-8 bg-red-600 hover:bg-red-500 text-white px-10 py-3 rounded-full font-bold text-sm shadow-xl transition-all active:scale-95">OPEN LIST</button>}
                                 </div>
