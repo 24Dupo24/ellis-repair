@@ -9,12 +9,36 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        body, html { height: 100%; margin: 0; overflow: hidden; background-color: #0f172a; }
-        iframe { background-color: #1e293b; border: none; width: 100%; height: 100%; }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap');
+        
+        body, html { 
+            height: 100%; 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #020617; 
+            font-family: 'Inter', sans-serif;
+        }
+        
+        iframe { 
+            background-color: #0f172a; 
+            border: none; 
+            width: 100%; 
+            height: 100%; 
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        
         .pdf-container { position: relative; height: 100%; width: 100%; overflow: hidden; }
+
+        .brand-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            letter-spacing: 0.05em;
+        }
     </style>
 </head>
 <body>
@@ -23,28 +47,37 @@
     <script type="text/babel">
         const { useState, useMemo, useEffect } = React;
         
-        const Icon = ({ path, className = "w-5 h-5", fill = "none" }) => (
-            <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        const Icon = ({ path, className = "w-4 h-4", fill = "none" }) => (
+            <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 {path}
             </svg>
         );
 
         const Icons = {
             Search: () => <Icon path={<><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>} />,
-            BookOpen: () => <Icon path={<><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></>} />,
-            Zap: ({ className }) => <Icon className={className || "w-5 h-5"} fill="currentColor" path={<path d="M13 2 L3 14 h9 l-1 8 10-12 h-9 l1-8z"/>} />,
+            BookOpen: (props) => <Icon {...props} path={<><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></>} />,
+            Zap: (props) => <Icon {...props} fill="currentColor" path={<path d="M13 2 L3 14 h9 l-1 8 10-12 h-9 l1-8z"/>} />,
             Menu: () => <Icon path={<><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></>} />,
             X: () => <Icon path={<><path d="M18 6 6 18"/><path d="m6 6 12 12"/></>} />,
-            ChevronRight: () => <Icon className="w-4 h-4" path={<path d="m9 18 6-6-6-6"/>} />,
-            FileText: ({ className }) => <Icon className={className || "w-5 h-5"} path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></>} />,
-            Refresh: () => <Icon className="w-4 h-4 animate-spin" path={<><path d="M21 12a9 9 0 1 1-6.219-8.56"/><path d="M22 2v6h-6"/></>} />,
-            Plus: () => <Icon path={<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>} />,
+            ChevronRight: (props) => <Icon {...props} className="w-3 h-3 opacity-30" path={<path d="m9 18 6-6-6-6"/>} />,
+            FileText: (props) => <Icon {...props} path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></>} />,
+            Refresh: () => <Icon className="w-3 h-3 animate-spin text-slate-500" path={<><path d="M21 12a9 9 0 1 1-6.219-8.56"/><path d="M22 2v6h-6"/></>} />,
+            Plus: () => <Icon className="w-3 h-3" path={<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>} />,
             ExternalLink: () => <Icon className="w-4 h-4" path={<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>} />
         };
 
         const GITHUB_USERNAME = "24Dupo24"; 
         const REPO_NAME = "ellis-repair"; 
         const BASE_PDF_PATH = "work"; 
+
+        const getBrandInfo = (name) => {
+            const n = name.toUpperCase();
+            if (n.includes('BUNN')) return { label: 'BUNN', color: 'bg-red-500/10 text-red-400 border-red-500/20' };
+            if (n.includes('CURTIS')) return { label: 'CURTIS', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' };
+            if (n.includes('FETCO')) return { label: 'FETCO', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' };
+            if (n.includes('GRIND')) return { label: 'GRINDMASTER', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' };
+            return { label: 'PART', color: 'bg-slate-500/10 text-slate-400 border-slate-500/20' };
+        };
 
         const App = () => {
             const [searchQuery, setSearchQuery] = useState('');
@@ -67,20 +100,19 @@
                         const pdfList = data
                             .filter(file => file.name.toLowerCase().endsWith('.pdf'))
                             .map((file, index) => {
-                                // Since Pages is active, we can use the standard URL, 
-                                // but keep raw as an internal backup
                                 const standardUrl = `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`;
                                 return {
                                     id: `gh-${index}`,
                                     name: file.name.replace(/_/g, ' ').replace('.pdf', ''),
                                     file: file.name,
                                     type: 'github',
-                                    url: standardUrl
+                                    url: standardUrl,
+                                    brand: getBrandInfo(file.name)
                                 };
                             });
-                        setMachines(prev => [...prev.filter(m => m.type !== 'github'), ...pdfList]);
+                        setMachines(pdfList);
                     } else {
-                        throw new Error(`Cloud folder not found. Check if /work exists.`);
+                        throw new Error(`Manuals folder not found.`);
                     }
                 } catch (err) {
                     setError(err.message);
@@ -97,10 +129,11 @@
                 const files = Array.from(e.target.files);
                 const localPdfs = files.filter(f => f.type === "application/pdf").map((file, index) => ({
                     id: `local-${Date.now()}-${index}`,
-                    name: `[OFFLINE] ${file.name.replace('.pdf', '')}`,
+                    name: file.name.replace('.pdf', ''),
                     file: file.name,
                     type: 'local',
-                    url: URL.createObjectURL(file)
+                    url: URL.createObjectURL(file),
+                    brand: getBrandInfo(file.name)
                 }));
                 setMachines(prev => [...localPdfs, ...prev]);
             };
@@ -122,106 +155,113 @@
                 : null;
 
             return (
-                <div className="flex flex-col h-screen bg-slate-900 text-white font-sans overflow-hidden">
-                    {/* Compact Header */}
-                    <header className="bg-slate-800 border-b border-slate-700 p-3 flex justify-between items-center z-50 shadow-md shrink-0">
-                        <div className="flex items-center gap-2">
-                            <div className="bg-red-600 p-1.5 rounded-lg shadow-lg shadow-red-900/40">
+                <div className="flex flex-col h-screen bg-slate-950 text-white font-sans overflow-hidden">
+                    {/* Industrial Header */}
+                    <header className="bg-slate-900 border-b border-slate-800 p-3 flex justify-between items-center z-50 shadow-xl shrink-0">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-red-600 p-1.5 rounded-md shadow-lg shadow-red-900/40">
                                 <Icons.Zap className="w-4 h-4 text-white" />
                             </div>
                             <div>
-                                <h1 className="font-black text-sm uppercase tracking-tighter leading-none">Ellis Coffee</h1>
-                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Repair Library</span>
+                                <h1 className="font-black text-xs uppercase tracking-[0.2em] leading-none">Ellis Coffee</h1>
+                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-1 block">Maintenance OS</span>
                             </div>
                         </div>
-                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 hover:bg-slate-700 rounded-full transition-colors active:scale-90">
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-700 active:scale-95">
                             {isMenuOpen ? <Icons.X /> : <Icons.Menu />}
                         </button>
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
                         {/* Sidebar */}
-                        <aside className={`fixed inset-0 z-40 bg-slate-900 transition-transform duration-300 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:w-72 border-r border-slate-800 flex flex-col shadow-2xl md:shadow-none`}>
-                            <div className="p-4 bg-slate-900 border-b border-slate-800/50 space-y-3">
+                        <aside className={`fixed inset-0 z-40 bg-slate-950 transition-transform duration-300 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:w-72 border-r border-slate-900 flex flex-col`}>
+                            <div className="p-4 space-y-3 bg-slate-950/50 backdrop-blur-sm">
                                 <div className="relative group">
-                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-red-500 transition-colors"><Icons.Search /></div>
+                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-red-500 transition-colors"><Icons.Search /></div>
                                     <input
                                         type="text"
                                         placeholder="Search manuals..."
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-red-500/50 text-sm transition-all"
+                                        className="w-full bg-slate-900 border border-slate-800 rounded-lg py-2 pl-9 pr-4 focus:outline-none focus:ring-1 focus:ring-red-500/50 text-xs transition-all placeholder:text-slate-600"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
                                 </div>
-                                <label className="flex items-center justify-center gap-2 bg-slate-800/50 hover:bg-slate-700 border border-slate-700/50 rounded-xl py-2 px-4 cursor-pointer transition-colors text-[10px] font-black text-slate-400 active:scale-95 uppercase tracking-widest">
-                                    <Icons.Plus /> Load Extra File
+                                <label className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg py-2 px-4 cursor-pointer transition-colors text-[9px] font-black text-slate-500 active:scale-95 uppercase tracking-widest">
+                                    <Icons.Plus /> Sync Local File
                                     <input type="file" multiple accept="application/pdf" className="hidden" onChange={handleLocalUpload} />
                                 </label>
                             </div>
                             
-                            <div className="flex-1 overflow-y-auto px-2 pb-24 custom-scrollbar bg-slate-900/50">
-                                <div className="flex justify-between items-center px-4 py-3">
-                                    <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Manuals ({filteredMachines.length})</h3>
+                            <div className="flex-1 overflow-y-auto px-2 pb-24 custom-scrollbar">
+                                <div className="flex justify-between items-center px-4 py-2">
+                                    <h3 className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Schematics ({filteredMachines.length})</h3>
                                     {isLoading && <Icons.Refresh />}
                                 </div>
                                 
-                                {error && (
-                                    <div className="mx-2 mb-4 p-3 bg-red-900/10 border border-red-500/20 rounded-lg text-center">
-                                        <p className="text-[10px] text-red-400 font-bold uppercase mb-2">Sync Error</p>
-                                        <button onClick={fetchFiles} className="text-[10px] bg-red-600 text-white px-3 py-1 rounded font-bold uppercase">Retry</button>
-                                    </div>
-                                )}
-
                                 {filteredMachines.map(machine => (
-                                    <button key={machine.id} onClick={() => handleSelectMachine(machine)} className={`w-full text-left p-3.5 rounded-xl mb-1 flex items-center justify-between transition-all active:scale-[0.97] ${selectedMachine?.id === machine.id ? 'bg-red-600 text-white shadow-lg shadow-red-900/30' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}>
-                                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                                            <Icons.FileText className={selectedMachine?.id === machine.id ? 'text-white' : (machine.type === 'local' ? 'text-blue-500' : 'text-slate-600')} />
-                                            <span className="font-bold text-xs truncate uppercase tracking-tight">{machine.name}</span>
+                                    <button 
+                                        key={machine.id} 
+                                        onClick={() => handleSelectMachine(machine)} 
+                                        className={`w-full text-left p-3 rounded-lg mb-1 flex items-center justify-between transition-all group ${selectedMachine?.id === machine.id ? 'bg-red-600 shadow-lg shadow-red-900/20' : 'hover:bg-slate-900/50'}`}
+                                    >
+                                        <div className="flex flex-col gap-1 min-w-0 flex-1 pr-2">
+                                            <div className="flex items-center gap-2">
+                                                <Icons.FileText className={selectedMachine?.id === machine.id ? 'text-white w-3.5 h-3.5' : 'text-slate-700 w-3.5 h-3.5 group-hover:text-slate-500'} />
+                                                <span className={`font-bold text-[11px] truncate uppercase tracking-tight ${selectedMachine?.id === machine.id ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>
+                                                    {machine.name}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2 pl-5">
+                                                <span className={`brand-badge border ${selectedMachine?.id === machine.id ? 'bg-white/20 border-white/20 text-white' : machine.brand.color}`}>
+                                                    {machine.brand.label}
+                                                </span>
+                                                {machine.type === 'local' && <span className="text-[8px] font-bold text-blue-400">OFFLINE</span>}
+                                            </div>
                                         </div>
-                                        <Icons.ChevronRight className={selectedMachine?.id === machine.id ? 'opacity-100' : 'opacity-20'} />
+                                        <Icons.ChevronRight className={selectedMachine?.id === machine.id ? 'text-white opacity-100' : 'text-slate-800'} />
                                     </button>
                                 ))}
                             </div>
                         </aside>
 
                         {/* Viewer */}
-                        <main className="flex-1 bg-slate-950 flex flex-col relative overflow-hidden">
+                        <main className="flex-1 bg-black flex flex-col relative overflow-hidden">
                             {selectedMachine ? (
                                 <>
-                                    <div className="flex-1 w-full bg-slate-800 relative">
+                                    <div className="flex-1 w-full bg-slate-900 relative">
                                         <div className="pdf-container">
                                             <iframe key={`${selectedMachine.id}-${pdfPage}`} src={pdfUrl} title="PDF Viewer" />
                                         </div>
                                         
                                         <div className="absolute top-4 right-4 flex flex-col gap-2">
-                                            <a href={selectedMachine.url} target="_blank" rel="noopener noreferrer" className="bg-slate-900/90 p-3 rounded-full hover:bg-red-600 transition-colors shadow-2xl border border-slate-700 flex items-center justify-center text-white" title="Open Fullscreen">
+                                            <a href={selectedMachine.url} target="_blank" rel="noopener noreferrer" className="bg-slate-900/90 p-2.5 rounded-lg hover:bg-red-600 transition-colors shadow-2xl border border-slate-700 flex items-center justify-center text-white active:scale-95" title="External Viewer">
                                                 <Icons.ExternalLink />
                                             </a>
                                         </div>
                                     </div>
                                     
                                     {/* Action Bar */}
-                                    <div className="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-3 flex gap-2 shadow-2xl shrink-0">
-                                        <button onClick={() => jumpToPage(1)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-3 px-2 rounded-xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
-                                            <Icons.BookOpen className="w-4 h-4" /> Parts
+                                    <div className="bg-slate-900 border-t border-slate-800 p-2 flex gap-2 shadow-2xl shrink-0">
+                                        <button onClick={() => jumpToPage(1)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-3 px-2 rounded-lg flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
+                                            <Icons.BookOpen className="w-3.5 h-3.5" /> Parts Schematic
                                         </button>
-                                        <button onClick={() => jumpToPage(5)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-3 px-2 rounded-xl flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
-                                            <Icons.Zap className="text-yellow-500 w-4 h-4" /> Wiring
+                                        <button onClick={() => jumpToPage(5)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-3 px-2 rounded-lg flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
+                                            <Icons.Zap className="text-yellow-500 w-3.5 h-3.5" /> Wiring Map
                                         </button>
                                     </div>
                                 </>
                             ) : (
-                                <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-                                    <div className="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center mb-6 border border-slate-800 shadow-2xl">
-                                        <Icons.BookOpen className="w-8 h-8 text-slate-600" />
+                                <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-900 via-black to-black">
+                                    <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mb-6 border border-slate-800 shadow-2xl shadow-red-900/5">
+                                        <Icons.BookOpen className="w-6 h-6 text-slate-700" />
                                     </div>
-                                    <h2 className="text-xl font-black text-slate-200 mb-2 tracking-[0.2em] uppercase">Ellis Library</h2>
-                                    <p className="max-w-[240px] text-[11px] text-slate-500 leading-relaxed font-bold uppercase tracking-wider">
-                                        Select a schematic from the sidebar to begin repair.
+                                    <h2 className="text-lg font-black text-slate-400 mb-2 tracking-[0.3em] uppercase">Ready for Service</h2>
+                                    <p className="max-w-[240px] text-[10px] text-slate-600 leading-relaxed font-bold uppercase tracking-widest">
+                                        Identify unit & select schematic from library to begin.
                                     </p>
                                     {!isMenuOpen && (
-                                        <button onClick={() => setIsMenuOpen(true)} className="mt-8 bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-full font-black text-[10px] shadow-xl transition-all active:scale-95 uppercase tracking-widest">
-                                            Show List
+                                        <button onClick={() => setIsMenuOpen(true)} className="mt-8 bg-red-600 hover:bg-red-500 text-white px-10 py-3 rounded-lg font-black text-[10px] shadow-xl transition-all active:scale-95 uppercase tracking-widest">
+                                            Browse Library
                                         </button>
                                     )}
                                 </div>
