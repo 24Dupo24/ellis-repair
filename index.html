@@ -38,6 +38,30 @@
             padding: 1px 4px;
             border-radius: 3px;
             letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .logo-shine {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        .logo-shine::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 4s infinite;
+        }
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
         }
     </style>
 </head>
@@ -47,6 +71,12 @@
     <script type="text/babel">
         const { useState, useMemo, useEffect } = React;
         
+        // --- CONFIGURATION ---
+        const GITHUB_USERNAME = "24Dupo24"; 
+        const REPO_NAME = "ellis-repair"; 
+        const BASE_PDF_PATH = "work"; 
+        const LOGO_URL = `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/images/ellis-coffee-logo.png`; 
+
         const Icon = ({ path, className = "w-4 h-4", fill = "none" }) => (
             <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 {path}
@@ -66,16 +96,19 @@
             ExternalLink: () => <Icon className="w-4 h-4" path={<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>} />
         };
 
-        const GITHUB_USERNAME = "24Dupo24"; 
-        const REPO_NAME = "ellis-repair"; 
-        const BASE_PDF_PATH = "work"; 
-
         const getBrandInfo = (name) => {
             const n = name.toUpperCase();
             if (n.includes('BUNN')) return { label: 'BUNN', color: 'bg-red-500/10 text-red-400 border-red-500/20' };
             if (n.includes('CURTIS')) return { label: 'CURTIS', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' };
             if (n.includes('FETCO')) return { label: 'FETCO', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' };
             if (n.includes('GRIND')) return { label: 'GRINDMASTER', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' };
+            if (n.includes('SIMONELLI')) return { label: 'SIMONELLI', color: 'bg-sky-500/10 text-sky-400 border-sky-500/20' };
+            if (n.includes('NEWCO')) return { label: 'NEWCO', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' };
+            if (n.includes('FLAVIA')) return { label: 'FLAVIA', color: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20' };
+            if (n.includes('EVOCA')) return { label: 'EVOCA', color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' };
+            if (n.includes('CECILWARE')) return { label: 'CECILWARE', color: 'bg-orange-500/10 text-orange-400 border-orange-500/20' };
+            if (n.includes('CORNELIUS')) return { label: 'CORNELIUS', color: 'bg-lime-500/10 text-lime-400 border-lime-500/20' };
+            if (n.includes('BISTRO')) return { label: 'BISTRO', color: 'bg-rose-500/10 text-rose-400 border-rose-500/20' };
             return { label: 'PART', color: 'bg-slate-500/10 text-slate-400 border-slate-500/20' };
         };
 
@@ -100,13 +133,13 @@
                         const pdfList = data
                             .filter(file => file.name.toLowerCase().endsWith('.pdf'))
                             .map((file, index) => {
-                                const standardUrl = `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`;
+                                const directUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`;
                                 return {
                                     id: `gh-${index}`,
                                     name: file.name.replace(/_/g, ' ').replace('.pdf', ''),
                                     file: file.name,
                                     type: 'github',
-                                    url: standardUrl,
+                                    url: directUrl,
                                     brand: getBrandInfo(file.name)
                                 };
                             });
@@ -156,15 +189,26 @@
 
             return (
                 <div className="flex flex-col h-screen bg-slate-950 text-white font-sans overflow-hidden">
-                    {/* Industrial Header */}
                     <header className="bg-slate-900 border-b border-slate-800 p-3 flex justify-between items-center z-50 shadow-xl shrink-0">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-red-600 p-1.5 rounded-md shadow-lg shadow-red-900/40">
-                                <Icons.Zap className="w-4 h-4 text-white" />
+                        <div className="flex items-center gap-4">
+                            <div className="logo-shine h-10 w-auto flex items-center">
+                                <img 
+                                    src={LOGO_URL} 
+                                    alt="Ellis Coffee" 
+                                    className="h-full w-auto object-contain max-w-[140px]"
+                                    onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.nextSibling.style.display = 'flex';
+                                    }}
+                                />
+                                <div className="hidden bg-red-600 p-1.5 rounded-md shadow-lg shadow-red-900/40">
+                                    <Icons.Zap className="w-4 h-4 text-white" />
+                                </div>
                             </div>
-                            <div>
-                                <h1 className="font-black text-xs uppercase tracking-[0.2em] leading-none">Ellis Coffee</h1>
-                                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-1 block">Maintenance OS</span>
+                            <div className="hidden sm:block h-6 w-[1px] bg-slate-800 ml-1"></div>
+                            <div className="hidden sm:block">
+                                <h1 className="font-black text-[10px] uppercase tracking-[0.2em] leading-none text-slate-300">Parts Finder</h1>
+                                <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest leading-none mt-1 block">Maintenance OS v1.0</span>
                             </div>
                         </div>
                         <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-700 active:scale-95">
@@ -173,7 +217,6 @@
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
-                        {/* Sidebar */}
                         <aside className={`fixed inset-0 z-40 bg-slate-950 transition-transform duration-300 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:w-72 border-r border-slate-900 flex flex-col`}>
                             <div className="p-4 space-y-3 bg-slate-950/50 backdrop-blur-sm">
                                 <div className="relative group">
@@ -181,7 +224,7 @@
                                     <input
                                         type="text"
                                         placeholder="Search manuals..."
-                                        className="w-full bg-slate-900 border border-slate-800 rounded-lg py-2 pl-9 pr-4 focus:outline-none focus:ring-1 focus:ring-red-500/50 text-xs transition-all placeholder:text-slate-600"
+                                        className="w-full bg-slate-900 border border-slate-800 rounded-lg py-2.5 pl-9 pr-4 focus:outline-none focus:ring-1 focus:ring-red-500/50 text-xs transition-all placeholder:text-slate-600"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
@@ -204,7 +247,7 @@
                                         onClick={() => handleSelectMachine(machine)} 
                                         className={`w-full text-left p-3 rounded-lg mb-1 flex items-center justify-between transition-all group ${selectedMachine?.id === machine.id ? 'bg-red-600 shadow-lg shadow-red-900/20' : 'hover:bg-slate-900/50'}`}
                                     >
-                                        <div className="flex flex-col gap-1 min-w-0 flex-1 pr-2">
+                                        <div className="flex flex-col gap-1.5 min-w-0 flex-1 pr-2">
                                             <div className="flex items-center gap-2">
                                                 <Icons.FileText className={selectedMachine?.id === machine.id ? 'text-white w-3.5 h-3.5' : 'text-slate-700 w-3.5 h-3.5 group-hover:text-slate-500'} />
                                                 <span className={`font-bold text-[11px] truncate uppercase tracking-tight ${selectedMachine?.id === machine.id ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>
@@ -224,7 +267,6 @@
                             </div>
                         </aside>
 
-                        {/* Viewer */}
                         <main className="flex-1 bg-black flex flex-col relative overflow-hidden">
                             {selectedMachine ? (
                                 <>
@@ -240,7 +282,6 @@
                                         </div>
                                     </div>
                                     
-                                    {/* Action Bar */}
                                     <div className="bg-slate-900 border-t border-slate-800 p-2 flex gap-2 shadow-2xl shrink-0">
                                         <button onClick={() => jumpToPage(1)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-3 px-2 rounded-lg flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
                                             <Icons.BookOpen className="w-3.5 h-3.5" /> Parts Schematic
@@ -255,7 +296,7 @@
                                     <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mb-6 border border-slate-800 shadow-2xl shadow-red-900/5">
                                         <Icons.BookOpen className="w-6 h-6 text-slate-700" />
                                     </div>
-                                    <h2 className="text-lg font-black text-slate-400 mb-2 tracking-[0.3em] uppercase">Ready for Service</h2>
+                                    <h2 className="text-lg font-black text-slate-400 mb-2 tracking-[0.3em] uppercase tracking-widest">Ready for Service</h2>
                                     <p className="max-w-[240px] text-[10px] text-slate-600 leading-relaxed font-bold uppercase tracking-widest">
                                         Identify unit & select schematic from library to begin.
                                     </p>
