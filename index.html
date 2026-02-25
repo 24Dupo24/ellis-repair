@@ -103,12 +103,12 @@
             if (n.includes('FETCO')) return { label: 'FETCO', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' };
             if (n.includes('GRIND')) return { label: 'GRINDMASTER', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' };
             if (n.includes('SIMONELLI')) return { label: 'SIMONELLI', color: 'bg-sky-500/10 text-sky-400 border-sky-500/20' };
-            if (n.includes('NEWCO')) return { label: 'NEWCO', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' };
+            // Tagging Bistro files as Newco per request
+            if (n.includes('NEWCO') || n.includes('BISTRO')) return { label: 'NEWCO', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' };
             if (n.includes('FLAVIA')) return { label: 'FLAVIA', color: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20' };
             if (n.includes('EVOCA')) return { label: 'EVOCA', color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' };
             if (n.includes('CECILWARE')) return { label: 'CECILWARE', color: 'bg-orange-500/10 text-orange-400 border-orange-500/20' };
             if (n.includes('CORNELIUS')) return { label: 'CORNELIUS', color: 'bg-lime-500/10 text-lime-400 border-lime-500/20' };
-            if (n.includes('BISTRO')) return { label: 'BISTRO', color: 'bg-rose-500/10 text-rose-400 border-rose-500/20' };
             return { label: 'PART', color: 'bg-slate-500/10 text-slate-400 border-slate-500/20' };
         };
 
