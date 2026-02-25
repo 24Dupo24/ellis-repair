@@ -66,18 +66,21 @@
                         const data = await response.json();
                         const pdfList = data
                             .filter(file => file.name.toLowerCase().endsWith('.pdf'))
-                            .map((file, index) => ({
-                                id: `gh-${index}`,
-                                name: file.name.replace(/_/g, ' ').replace('.pdf', ''),
-                                file: file.name,
-                                type: 'github',
-                                // We'll try the Pages URL first, but provide the Raw URL as a fallback if needed
-                                url: `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`,
-                                rawUrl: `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`
-                            }));
+                            .map((file, index) => {
+                                // DIRECT RAW URL CONSTRUCTION
+                                // This bypasses the GitHub Pages build process
+                                const directUrl = `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`;
+                                return {
+                                    id: `gh-${index}`,
+                                    name: file.name.replace(/_/g, ' ').replace('.pdf', ''),
+                                    file: file.name,
+                                    type: 'github',
+                                    url: directUrl
+                                };
+                            });
                         setMachines(prev => [...prev.filter(m => m.type !== 'github'), ...pdfList]);
                     } else {
-                        throw new Error(`Folder "${BASE_PDF_PATH}" not found in ${REPO_NAME}.`);
+                        throw new Error(`The folder "${BASE_PDF_PATH}" was not found.`);
                     }
                 } catch (err) {
                     setError(err.message);
@@ -97,8 +100,7 @@
                     name: `[LOCAL] ${file.name.replace('.pdf', '')}`,
                     file: file.name,
                     type: 'local',
-                    url: URL.createObjectURL(file),
-                    rawUrl: URL.createObjectURL(file)
+                    url: URL.createObjectURL(file)
                 }));
                 setMachines(prev => [...localPdfs, ...prev]);
             };
@@ -115,7 +117,6 @@
 
             const jumpToPage = (page) => setPdfPage(page);
 
-            // Construct the final URL with the page fragment
             const pdfUrl = selectedMachine 
                 ? `${selectedMachine.url}#page=${pdfPage}`
                 : null;
@@ -148,8 +149,8 @@
                                     />
                                 </div>
                                 
-                                <label className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2 px-4 cursor-pointer transition-colors text-[10px] font-bold text-slate-400 active:scale-95 uppercase">
-                                    <Icons.Plus /> Load Extra PDFS
+                                <label className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl py-2 px-4 cursor-pointer transition-colors text-[10px] font-bold text-slate-400 active:scale-95 uppercase tracking-widest">
+                                    <Icons.Plus /> Load Manual Files
                                     <input type="file" multiple accept="application/pdf" className="hidden" onChange={handleLocalUpload} />
                                 </label>
                             </div>
@@ -168,12 +169,12 @@
                                 )}
 
                                 {filteredMachines.map(machine => (
-                                    <button key={machine.id} onClick={() => handleSelectMachine(machine)} className={`w-full text-left p-4 rounded-xl mb-1 flex items-center justify-between transition-all active:scale-[0.98] ${selectedMachine?.id === machine.id ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'}`}>
+                                    <button key={machine.id} onClick={() => handleSelectMachine(machine)} className={`w-full text-left p-4 rounded-xl mb-1 flex items-center justify-between transition-all active:scale-[0.98] ${selectedMachine?.id === machine.id ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'hover:bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700'}`}>
                                         <div className="flex items-center gap-3 min-w-0 shrink-0 flex-1">
                                             <Icons.FileText className={selectedMachine?.id === machine.id ? 'text-white' : (machine.type === 'local' ? 'text-blue-400' : 'text-slate-600')} />
                                             <span className="font-medium text-sm truncate">{machine.name}</span>
                                         </div>
-                                        <Icons.ChevronRight className="shrink-0" />
+                                        <Icons.ChevronRight className="shrink-0 opacity-40" />
                                     </button>
                                 ))}
                             </div>
@@ -185,38 +186,37 @@
                                     <div className="flex-1 w-full bg-slate-800 relative">
                                         <iframe key={`${selectedMachine.id}-${pdfPage}`} src={pdfUrl} className="w-full h-full" title="PDF Viewer" />
                                         
-                                        {/* Overlay controls for easier navigation if iframe blocks input */}
+                                        {/* Fallback overlay in case of iframe blocking or 404 */}
                                         <div className="absolute top-4 right-4 flex flex-col gap-2">
                                             <a 
-                                                href={selectedMachine.rawUrl} 
+                                                href={selectedMachine.url} 
                                                 target="_blank" 
                                                 rel="noopener noreferrer" 
                                                 className="bg-slate-900/90 p-3 rounded-full hover:bg-slate-900 transition-colors shadow-2xl border border-slate-700 flex items-center justify-center" 
-                                                title="Open Raw PDF in new tab (Fixes 404)"
+                                                title="Open direct file link"
                                             >
                                                 <Icons.ExternalLink />
                                             </a>
                                         </div>
 
-                                        {/* 404 Rescue Message (appears behind iframe if it's transparent or fails) */}
                                         <div className="absolute inset-0 -z-10 flex flex-col items-center justify-center p-6 text-center">
                                             <Icons.AlertCircle />
-                                            <p className="mt-4 text-slate-400 text-sm font-medium">If you see a 404 above, GitHub is still syncing.</p>
+                                            <p className="mt-4 text-slate-400 text-sm font-medium leading-relaxed">If the manual doesn't appear above,<br/>tap the red button below.</p>
                                             <a 
-                                                href={selectedMachine.rawUrl} 
+                                                href={selectedMachine.url} 
                                                 target="_blank" 
                                                 rel="noopener noreferrer"
-                                                className="mt-4 bg-red-600 text-white px-6 py-2 rounded-lg font-bold text-xs uppercase tracking-widest shadow-xl"
+                                                className="mt-6 bg-red-600 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-2xl active:scale-95"
                                             >
-                                                Open Direct PDF
+                                                Open Manual Directly
                                             </a>
                                         </div>
                                     </div>
                                     <div className="bg-slate-900/90 backdrop-blur-md border-t border-slate-800 p-4 flex gap-3 shadow-lg shrink-0">
-                                        <button onClick={() => jumpToPage(10)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[10px] uppercase transition-all active:scale-95">
+                                        <button onClick={() => jumpToPage(10)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[10px] uppercase transition-all active:scale-95 tracking-widest">
                                             <Icons.BookOpen /> Exploded View
                                         </button>
-                                        <button onClick={() => jumpToPage(25)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[10px] uppercase transition-all active:scale-95">
+                                        <button onClick={() => jumpToPage(25)} className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[10px] uppercase transition-all active:scale-95 tracking-widest">
                                             <Icons.Zap className="text-yellow-400 w-4 h-4" /> Wiring Map
                                         </button>
                                     </div>
@@ -226,9 +226,9 @@
                                     <div className="w-24 h-24 bg-slate-900/50 rounded-full flex items-center justify-center mb-6 border border-slate-800/50 shadow-inner">
                                         <Icons.BookOpen className="w-10 h-10 text-slate-700" />
                                     </div>
-                                    <h2 className="text-2xl font-black text-slate-200 mb-3 tracking-tight uppercase tracking-widest">Ellis Coffee</h2>
+                                    <h2 className="text-2xl font-black text-slate-200 mb-3 tracking-[0.2em] uppercase">Ellis Coffee</h2>
                                     <p className="max-w-[280px] text-sm text-slate-500 leading-relaxed font-medium">
-                                        Select a manual to start. If the list is empty, tap "Retry Sync" in the sidebar.
+                                        Select a manual from the list to begin.
                                     </p>
                                     {!isMenuOpen && <button onClick={() => setIsMenuOpen(true)} className="mt-8 bg-red-600 hover:bg-red-500 text-white px-10 py-3 rounded-full font-bold text-sm shadow-xl transition-all active:scale-95 uppercase tracking-widest">Open List</button>}
                                 </div>
