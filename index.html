@@ -77,7 +77,6 @@
             color: #d8b4fe !important;
         }
 
-        /* Ensure clean display of the PDF engine on mobile */
         .viewer-frame {
             border: 0;
             width: 100%;
@@ -131,10 +130,13 @@
             if (n.includes('GRIND')) return { label: 'GRINDMASTER', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' };
             if (n.includes('SIMONELLI')) return { label: 'SIMONELLI', color: 'bg-sky-500/10 text-sky-400 border-sky-500/20' };
             if (n.includes('NEWCO') || n.includes('BISTRO')) return { label: 'NEWCO', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' };
-            if (n.includes('FLAVIA')) return { label: 'FLAVIA', color: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20' };
+            if (n.includes('FLAVIA') || n.includes('LAVAZZA')) return { label: 'FLAVIA', color: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20' };
             if (n.includes('EVOCA')) return { label: 'EVOCA', color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' };
             if (n.includes('CECILWARE')) return { label: 'CECILWARE', color: 'bg-orange-500/10 text-orange-400 border-orange-500/20' };
             if (n.includes('CORNELIUS')) return { label: 'CORNELIUS', color: 'bg-lime-500/10 text-lime-400 border-lime-500/20' };
+            if (n.includes('HAMILTON')) return { label: 'HAMILTON', color: 'bg-slate-400/10 text-slate-300 border-slate-400/20' };
+            if (n.includes('NESPRESSO')) return { label: 'NESPRESSO', color: 'bg-stone-500/10 text-stone-400 border-stone-500/20' };
+            if (n.includes('ROYAL')) return { label: 'ROYAL CUP', color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' };
             return { label: 'OEM PART', color: 'bg-slate-500/10 text-slate-400 border-slate-500/20' };
         };
 
@@ -147,17 +149,19 @@
             const [machines, setMachines] = useState([]);
             const [isLoading, setIsLoading] = useState(true);
 
+            // Tech Support Data - UPDATED WITH USER LIST
             const techSupport = [
+                { name: "Grindmaster Support", phone: "1-800-695-4500", brand: "GRINDMASTER" },
                 { name: "Bunn Technical Support", phone: "1-800-637-8606", brand: "BUNN" },
                 { name: "Curtis Technical Service", phone: "1-800-421-6150", brand: "CURTIS" },
+                { name: "Lavazza / Flavia Support", phone: "1-877-273-5812", brand: "FLAVIA" },
                 { name: "Fetco Tech Support", phone: "1-800-338-2699", brand: "FETCO" },
-                { name: "Newco Support Team", phone: "1-800-325-7885", brand: "NEWCO" },
-                { name: "Grindmaster Support", phone: "1-800-695-4500", brand: "GRINDMASTER" },
-                { name: "Cecilware Support", phone: "1-800-695-4500", brand: "CECILWARE" },
-                { name: "Lavazza (Flavia Support)", phone: "1-800-349-8107", brand: "FLAVIA" },
-                { name: "Cornelius (Juice Support)", phone: "1-800-238-3601", brand: "CORNELIUS" },
-                { name: "Evoca Group (Cafection)", phone: "1-800-561-6162", brand: "EVOCA" },
-                { name: "Nuova Simonelli Support", phone: "1-360-366-2226", brand: "SIMONELLI" },
+                { name: "Gulf Ice / Cornelius", phone: "1-800-322-4853", brand: "CORNELIUS" },
+                { name: "Hamilton Beach Support", phone: "1-800-572-3331", brand: "HAMILTON" },
+                { name: "Nespresso Support Line", phone: "1-800-566-0571", brand: "NESPRESSO" },
+                { name: "Newco Support Team", phone: "1-800-325-7867", brand: "NEWCO" },
+                { name: "Royal Cup Support", phone: "1-800-366-5836", brand: "ROYAL" },
+                { name: "Nuova Simonelli Support", phone: "360-366-2226", brand: "SIMONELLI" },
             ];
 
             useEffect(() => {
@@ -253,7 +257,6 @@
                 setRefreshKey(prev => prev + 1); 
             };
 
-            // Enhanced PDF viewer logic for mobile to bypass "download only" prompts
             const pdfViewerUrl = selectedMachine 
                 ? `https://docs.google.com/viewer?url=${encodeURIComponent(selectedMachine.url)}&embedded=true&refresh=${refreshKey}`
                 : null;
@@ -262,7 +265,6 @@
                 <div className="flex flex-col h-screen bg-slate-950 text-white font-sans overflow-hidden">
                     <header className="bg-slate-900 border-b border-slate-800 p-3 flex justify-between items-center z-50 shadow-xl shrink-0">
                         <div className="flex items-center gap-1.5 sm:gap-2">
-                            {/* Logo Moved to Far Left */}
                             <div className="logo-shine h-8 sm:h-10 w-auto flex items-center cursor-pointer mr-1 sm:mr-2" onClick={handleHome}>
                                 <img src={LOGO_URL} alt="Ellis Coffee" className="h-full w-auto object-contain max-w-[90px] sm:max-w-[120px]" />
                             </div>
@@ -290,14 +292,12 @@
                                 <Icons.Mail className="w-5 h-5" />
                             </a>
 
-                            {/* Cleanest possible anchor tag for Gemini to ensure mobile browser compliance */}
                             <a 
                                 href="https://gemini.google.com/" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-purple-400 ai-glow" 
                                 title="Ask Gemini AI for Help"
-                                onClick={(e) => e.stopPropagation()}
                             >
                                 <Icons.Sparkles className="w-5 h-5" />
                             </a>
@@ -370,7 +370,7 @@
                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
                                     <span>Cloud Active</span>
                                 </div>
-                                <div className="flex items-center gap-1.5"><Icons.Cpu /><span>v1.3.0-MOBILE</span></div>
+                                <div className="flex items-center gap-1.5"><Icons.Cpu /><span>v1.3.1-REPAIR</span></div>
                             </div>
                         </aside>
 
@@ -425,7 +425,6 @@
                                 <>
                                     <div className="flex-1 w-full bg-slate-900 relative">
                                         <div className="pdf-container">
-                                            {/* Google Docs Viewer with standard embedding to force mobile inline display */}
                                             <iframe 
                                                 key={`${selectedMachine.id}-${refreshKey}`} 
                                                 src={pdfViewerUrl} 
@@ -433,7 +432,6 @@
                                                 className="viewer-frame"
                                             />
                                         </div>
-                                        {/* External Link button as a fail-safe for mobile PDF viewing */}
                                         <div className="absolute top-4 right-4 flex flex-col gap-2">
                                             <a 
                                                 href={selectedMachine.url} 
