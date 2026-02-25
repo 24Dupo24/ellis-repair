@@ -38,7 +38,8 @@
             FileText: ({ className }) => <Icon className={className || "w-5 h-5"} path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></>} />,
             Refresh: () => <Icon className="w-4 h-4 animate-spin" path={<><path d="M21 12a9 9 0 1 1-6.219-8.56"/><path d="M22 2v6h-6"/></>} />,
             Plus: () => <Icon path={<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>} />,
-            ExternalLink: () => <Icon className="w-4 h-4" path={<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>} />
+            ExternalLink: () => <Icon className="w-4 h-4" path={<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>} />,
+            AlertCircle: () => <Icon className="w-12 h-12 text-slate-700" path={<><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></>} />
         };
 
         const GITHUB_USERNAME = "24Dupo24"; 
@@ -58,7 +59,6 @@
                 setIsLoading(true);
                 setError(null);
                 try {
-                    // Fetch list from GitHub API
                     const apiURL = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${BASE_PDF_PATH}?t=${Date.now()}`;
                     const response = await fetch(apiURL);
                     
@@ -71,12 +71,13 @@
                                 name: file.name.replace(/_/g, ' ').replace('.pdf', ''),
                                 file: file.name,
                                 type: 'github',
-                                // Use the RAW URL which usually bypasses Pages 404s
-                                url: `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`
+                                // We'll try the Pages URL first, but provide the Raw URL as a fallback if needed
+                                url: `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`,
+                                rawUrl: `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/main/${BASE_PDF_PATH}/${encodeURIComponent(file.name)}`
                             }));
                         setMachines(prev => [...prev.filter(m => m.type !== 'github'), ...pdfList]);
                     } else {
-                        throw new Error(`Folder "${BASE_PDF_PATH}" not found in ${REPO_NAME}. Check folder spelling.`);
+                        throw new Error(`Folder "${BASE_PDF_PATH}" not found in ${REPO_NAME}.`);
                     }
                 } catch (err) {
                     setError(err.message);
@@ -96,7 +97,8 @@
                     name: `[LOCAL] ${file.name.replace('.pdf', '')}`,
                     file: file.name,
                     type: 'local',
-                    url: URL.createObjectURL(file)
+                    url: URL.createObjectURL(file),
+                    rawUrl: URL.createObjectURL(file)
                 }));
                 setMachines(prev => [...localPdfs, ...prev]);
             };
@@ -113,6 +115,7 @@
 
             const jumpToPage = (page) => setPdfPage(page);
 
+            // Construct the final URL with the page fragment
             const pdfUrl = selectedMachine 
                 ? `${selectedMachine.url}#page=${pdfPage}`
                 : null;
@@ -132,7 +135,7 @@
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
-                        <aside className={`fixed inset-0 z-40 bg-slate-900 transition-transform duration-300 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:w-80 border-r border-slate-800 flex flex-col`}>
+                        <aside className={`fixed inset-0 z-40 bg-slate-900 transition-transform duration-300 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:w-80 border-r border-slate-800 flex flex-col shadow-2xl md:shadow-none`}>
                             <div className="p-4 bg-slate-900 space-y-3">
                                 <div className="relative group">
                                     <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-red-500 transition-colors"><Icons.Search /></div>
@@ -181,9 +184,31 @@
                                 <>
                                     <div className="flex-1 w-full bg-slate-800 relative">
                                         <iframe key={`${selectedMachine.id}-${pdfPage}`} src={pdfUrl} className="w-full h-full" title="PDF Viewer" />
+                                        
+                                        {/* Overlay controls for easier navigation if iframe blocks input */}
                                         <div className="absolute top-4 right-4 flex flex-col gap-2">
-                                            <a href={selectedMachine.url} target="_blank" rel="noopener noreferrer" className="bg-slate-900/80 p-3 rounded-full hover:bg-slate-900 transition-colors shadow-2xl border border-slate-700" title="Open PDF in new tab">
+                                            <a 
+                                                href={selectedMachine.rawUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer" 
+                                                className="bg-slate-900/90 p-3 rounded-full hover:bg-slate-900 transition-colors shadow-2xl border border-slate-700 flex items-center justify-center" 
+                                                title="Open Raw PDF in new tab (Fixes 404)"
+                                            >
                                                 <Icons.ExternalLink />
+                                            </a>
+                                        </div>
+
+                                        {/* 404 Rescue Message (appears behind iframe if it's transparent or fails) */}
+                                        <div className="absolute inset-0 -z-10 flex flex-col items-center justify-center p-6 text-center">
+                                            <Icons.AlertCircle />
+                                            <p className="mt-4 text-slate-400 text-sm font-medium">If you see a 404 above, GitHub is still syncing.</p>
+                                            <a 
+                                                href={selectedMachine.rawUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="mt-4 bg-red-600 text-white px-6 py-2 rounded-lg font-bold text-xs uppercase tracking-widest shadow-xl"
+                                            >
+                                                Open Direct PDF
                                             </a>
                                         </div>
                                     </div>
@@ -201,9 +226,9 @@
                                     <div className="w-24 h-24 bg-slate-900/50 rounded-full flex items-center justify-center mb-6 border border-slate-800/50 shadow-inner">
                                         <Icons.BookOpen className="w-10 h-10 text-slate-700" />
                                     </div>
-                                    <h2 className="text-2xl font-black text-slate-200 mb-3 tracking-tight uppercase">Ellis Coffee Repairs</h2>
+                                    <h2 className="text-2xl font-black text-slate-200 mb-3 tracking-tight uppercase tracking-widest">Ellis Coffee</h2>
                                     <p className="max-w-[280px] text-sm text-slate-500 leading-relaxed font-medium">
-                                        Select a manual to begin. If the list is empty, tap "Retry Sync" in the sidebar.
+                                        Select a manual to start. If the list is empty, tap "Retry Sync" in the sidebar.
                                     </p>
                                     {!isMenuOpen && <button onClick={() => setIsMenuOpen(true)} className="mt-8 bg-red-600 hover:bg-red-500 text-white px-10 py-3 rounded-full font-bold text-sm shadow-xl transition-all active:scale-95 uppercase tracking-widest">Open List</button>}
                                 </div>
