@@ -251,7 +251,7 @@
 
             return (
                 <div className="flex flex-col h-full bg-black text-white overflow-hidden selection:bg-red-600/40">
-                    {/* GLASS HEADER - LOGO FIX */}
+                    {/* FIXED INTEGRATED HEADER */}
                     <header className="glass-header z-50 shrink-0">
                         <div className="flex justify-between items-center px-4 h-16 max-w-7xl mx-auto w-full">
                             <div className="flex items-center">
@@ -260,7 +260,7 @@
                                 </div>
                             </div>
                             
-                            {/* Consolidated Technical Toolbar */}
+                            {/* Command Center Toolbar */}
                             <div className="flex items-center bg-white/5 rounded-2xl p-1 gap-1">
                                 <button onClick={handleHome} className={`command-btn px-3 py-2 ${viewMode === 'manual' && !selectedManual ? 'nav-pill-active' : 'text-slate-400 hover:text-white'}`} title="Home">
                                     <Icons.Home />
@@ -337,8 +337,12 @@
                                 ))}
                             </div>
 
+                            {/* SIDEBAR FOOTER WITH VERSION */}
                             <div className="p-5 border-t border-white/5 flex items-center justify-between bg-black shrink-0">
-                                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest italic">© 2026</span>
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest italic">© 2026</span>
+                                    <span className="text-[8px] font-black text-slate-700 uppercase tracking-[0.2em]">v1.0.1</span>
+                                </div>
                                 <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 rounded-full border border-emerald-500/10">
                                     <div className="status-pulse"></div>
                                     <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-wider">Online</span>
