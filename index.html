@@ -13,7 +13,6 @@
         
         :root { 
             --app-height: 100dvh; 
-            --header-height: 112px; /* Calculated height of the integrated top dock */
         }
         body, html { 
             height: var(--app-height);
@@ -126,7 +125,7 @@
             const [expandedBrands, setExpandedBrands] = useState({}); 
             const [isLoading, setIsLoading] = useState(true);
 
-            // --- REINFORCED HISTORY PROTECTION ---
+            // --- NAVIGATION PROTECTION (PopState) ---
             useEffect(() => {
                 const handlePopState = (event) => {
                     if (selectedManual) {
@@ -233,21 +232,21 @@
 
             return (
                 <div className="flex flex-col h-full bg-black text-white overflow-hidden selection:bg-red-600/40">
-                    {/* FIXED INTEGRATED HEADER */}
+                    {/* INTEGRATED COMMAND CENTER HEADER */}
                     <header className="glass-header z-50 shrink-0">
-                        <div className="flex justify-between items-center px-4 h-14 max-w-7xl mx-auto w-full">
+                        <div className="flex justify-between items-center px-4 h-16 max-w-7xl mx-auto w-full">
                             <div className="flex items-center">
-                                <div className="h-6 cursor-pointer active:scale-95 transition-transform" onClick={handleHome}>
+                                <div className="h-7 cursor-pointer active:scale-95 transition-transform" onClick={handleHome}>
                                     <img src={LOGO_URL} alt="Ellis" className="h-full w-auto" />
                                 </div>
                             </div>
                             
-                            {/* Command Center Toolbar */}
+                            {/* Consolidated Technical Toolbar */}
                             <div className="flex items-center bg-white/5 rounded-2xl p-1 gap-1">
                                 <button onClick={handleHome} className={`command-btn px-3 py-2 ${viewMode === 'manual' && !selectedManual ? 'nav-pill-active' : 'text-slate-400 hover:text-white'}`} title="Home">
                                     <Icons.Home />
                                 </button>
-                                <button onClick={() => handleSetView('directory')} className={`command-btn px-3 py-2 ${viewMode === 'directory' ? 'nav-pill-active' : 'text-slate-400 hover:text-white'}`} title="Support">
+                                <button onClick={() => { setViewMode('directory'); setSelectedManual(null); }} className={`command-btn px-3 py-2 ${viewMode === 'directory' ? 'nav-pill-active' : 'text-slate-400 hover:text-white'}`} title="Support Directory">
                                     <Icons.Support />
                                 </button>
                                 <button onClick={() => window.open('https://elliscoffee.com', '_blank')} className="command-btn px-3 py-2 text-slate-400 hover:text-white" title="Ellis Website">
@@ -256,26 +255,22 @@
                                 <button onClick={() => window.open('https://gemini.google.com', '_blank')} className="command-btn px-3 py-2 text-purple-400 hover:text-purple-300" title="AI Assistant">
                                     <Icons.Sparkle />
                                 </button>
+                                <button onClick={fetchManuals} className="command-btn px-3 py-2 text-slate-400 hover:text-white" title="Refresh System">
+                                    <Icons.Refresh />
+                                </button>
                                 <div className="w-[1px] h-4 bg-white/10 mx-1"></div>
-                                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="command-btn p-2 text-slate-300 hover:text-white">
+                                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="command-btn p-2 text-slate-300 hover:text-white" title="Library Menu">
                                     {isMenuOpen ? <Icons.Close /> : <Icons.Menu />}
                                 </button>
                             </div>
                         </div>
-
-                        {/* SUB-HEADER ACTION BAR (Visible on mobile/desktop for Refresh) */}
-                        <div className="px-3 pb-2 flex justify-center">
-                             <button onClick={fetchManuals} className="flex items-center gap-2 px-4 py-1.5 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-all">
-                                <Icons.Refresh /><span className="tech-pill-label">Refresh System</span>
-                             </button>
-                        </div>
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
-                        {/* Sidebar Menu - Fixed positioning relative to header */}
-                        <aside className={`fixed lg:relative inset-y-0 left-0 z-40 bg-black/95 lg:bg-transparent backdrop-blur-3xl lg:backdrop-blur-none transition-all duration-400 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full lg:translate-x-0 lg:w-80 lg:opacity-100'} border-r border-white/5 flex flex-col`}>
+                        {/* Sidebar Menu - Positioned naturally below the integrated header */}
+                        <aside className={`fixed lg:relative inset-y-0 left-0 z-40 bg-black/95 lg:bg-transparent backdrop-blur-3xl lg:backdrop-blur-none transition-all duration-400 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full lg:translate-x-0 lg:w-80 lg:opacity-100'} border-r border-white/5 flex flex-col pt-0`}>
                             
-                            {/* SLIM MASTER BUTTON - Pinned at Top of Sidebar */}
+                            {/* SLIM MASTER BUTTON - Pinned below header */}
                             <div className="p-4 border-b border-white/5 bg-black/40">
                                 {masterManual ? (
                                     <button 
@@ -289,11 +284,11 @@
                                         <div className="status-pulse bg-white/40"></div>
                                     </button>
                                 ) : (
-                                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center opacity-30"><p className="text-[8px] font-black uppercase tracking-[0.2em] animate-pulse">Syncing...</p></div>
+                                    <div className="h-11 rounded-xl bg-white/5 animate-pulse"></div>
                                 )}
                             </div>
 
-                            {/* SEARCH */}
+                            {/* SEARCH BOX */}
                             <div className="p-4 border-b border-white/5">
                                 <div className="relative">
                                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"><Icons.Search /></div>
@@ -301,10 +296,10 @@
                                 </div>
                             </div>
 
-                            {/* MANUAL CATEGORIES */}
+                            {/* MANUAL TREE */}
                             <div className="flex-1 overflow-y-auto px-3 pb-32 custom-scrollbar mt-2">
                                 {isLoading ? (
-                                    <div className="p-10 text-center text-slate-600 animate-pulse text-xs font-bold uppercase tracking-widest">Initialising Library...</div>
+                                    <div className="p-10 text-center text-slate-600 animate-pulse text-xs font-bold uppercase tracking-widest">Accessing Technical Assets...</div>
                                 ) : groupedManuals.map(group => (
                                     <div key={group.name} className="mb-4">
                                         <button onClick={() => toggleBrand(group.name)} className="w-full flex items-center justify-between px-3 py-2 group">
@@ -325,17 +320,17 @@
                                 ))}
                             </div>
 
-                            {/* SIDEBAR FOOTER */}
+                            {/* FOOTER */}
                             <div className="p-5 border-t border-white/5 flex items-center justify-between bg-black shrink-0">
                                 <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest italic">© 2026</span>
                                 <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 rounded-full border border-emerald-500/10">
                                     <div className="status-pulse"></div>
-                                    <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-wider">System Live</span>
+                                    <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-wider">Online</span>
                                 </div>
                             </div>
                         </aside>
 
-                        {/* Main Interaction Hub Area */}
+                        {/* Main Interaction Hub */}
                         <main className="flex-1 bg-black relative flex flex-col overflow-hidden hero-glow">
                             {viewMode === 'directory' ? (
                                 <div className="flex-1 overflow-y-auto p-4 lg:p-12 pb-32 custom-scrollbar">
@@ -343,8 +338,8 @@
                                         <div className="flex items-center gap-4 mb-6 border-b border-white/5 pb-6">
                                             <div className="bg-red-600 p-4 rounded-2xl shadow-xl shadow-red-900/20 shrink-0"><Icons.Support /></div>
                                             <div>
-                                                <h2 className="text-2xl font-extrabold uppercase tracking-tight text-white leading-none">Engineering</h2>
-                                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2">Support Directory</p>
+                                                <h2 className="text-2xl font-extrabold uppercase tracking-tight text-white leading-none">Engineering Support</h2>
+                                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2">Manufacturer Directory</p>
                                             </div>
                                         </div>
                                         {techSupport.map((contact, idx) => (
@@ -364,7 +359,6 @@
                                 <div className="flex-1 flex flex-col relative h-full">
                                     <iframe key={selectedManual.id} src={`https://docs.google.com/viewer?url=${encodeURIComponent(selectedManual.url)}&embedded=true`} className="flex-1 w-full" />
                                     
-                                    {/* Mobile Floating Back Button */}
                                     <button onClick={handleCloseManual} className="lg:hidden absolute top-4 left-4 z-50 bg-black/60 backdrop-blur-md w-11 h-11 rounded-full flex items-center justify-center shadow-2xl active:scale-90 border border-white/10">
                                         <Icons.ChevronLeft />
                                     </button>
@@ -392,7 +386,7 @@
                                                 onClick={() => setIsMenuOpen(true)} 
                                                 className="lg:hidden w-full bg-red-600 px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-red-950/40 active:scale-95 transition-all border border-white/10"
                                             >
-                                                Explore Technical Library
+                                                Explore Technical Assets
                                             </button>
                                         )}
                                     </div>
