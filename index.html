@@ -11,7 +11,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
         
-        :root { --app-height: 100dvh; }
+        :root { 
+            --app-height: 100dvh; 
+            --header-height: 112px; /* Calculated height of the integrated top dock */
+        }
         body, html { 
             height: var(--app-height);
             margin: 0; 
@@ -123,12 +126,12 @@
             const [expandedBrands, setExpandedBrands] = useState({}); 
             const [isLoading, setIsLoading] = useState(true);
 
-            // --- NAVIGATION PROTECTION ---
+            // --- REINFORCED HISTORY PROTECTION ---
             useEffect(() => {
                 const handlePopState = (event) => {
                     if (selectedManual) {
                         setSelectedManual(null);
-                    } else if (viewMode === 'directory') {
+                    } else if (viewMode !== 'manual') {
                         setViewMode('manual');
                     }
                 };
@@ -137,10 +140,17 @@
             }, [selectedManual, viewMode]);
 
             const handleManualSelect = (m) => { 
-                window.history.pushState({ view: 'manual' }, "");
+                window.history.pushState({ view: 'manual', manual: m.name }, "");
                 setSelectedManual(m); 
                 setViewMode('manual'); 
                 if (window.innerWidth < 1024) setIsMenuOpen(false); 
+            };
+
+            const handleSetView = (view) => {
+                window.history.pushState({ view }, "");
+                setViewMode(view);
+                setSelectedManual(null);
+                if (window.innerWidth < 1024) setIsMenuOpen(false);
             };
 
             const handleCloseManual = () => {
@@ -148,9 +158,10 @@
                 else setSelectedManual(null);
             };
 
-            const handleHome = () => { setSelectedManual(null); setViewMode('manual'); setIsMenuOpen(false); };
+            const handleHome = () => { handleSetView('manual'); setIsMenuOpen(false); };
             const toggleBrand = (brandName) => { setExpandedBrands(prev => ({ ...prev, [brandName]: !prev[brandName] })); };
 
+            // --- BRAND ENGINE ---
             const getBrandInfo = (name) => {
                 const n = name.toUpperCase();
                 if (n.includes('BUNN')) return { label: 'BUNN', color: 'bg-red-500/10 text-red-400 border-red-500/20', icon: 'B' };
@@ -224,9 +235,9 @@
                 <div className="flex flex-col h-full bg-black text-white overflow-hidden selection:bg-red-600/40">
                     {/* FIXED INTEGRATED HEADER */}
                     <header className="glass-header z-50 shrink-0">
-                        <div className="flex justify-between items-center px-4 h-16 max-w-7xl mx-auto w-full">
+                        <div className="flex justify-between items-center px-4 h-14 max-w-7xl mx-auto w-full">
                             <div className="flex items-center">
-                                <div className="h-7 cursor-pointer active:scale-95 transition-transform" onClick={handleHome}>
+                                <div className="h-6 cursor-pointer active:scale-95 transition-transform" onClick={handleHome}>
                                     <img src={LOGO_URL} alt="Ellis" className="h-full w-auto" />
                                 </div>
                             </div>
@@ -236,7 +247,7 @@
                                 <button onClick={handleHome} className={`command-btn px-3 py-2 ${viewMode === 'manual' && !selectedManual ? 'nav-pill-active' : 'text-slate-400 hover:text-white'}`} title="Home">
                                     <Icons.Home />
                                 </button>
-                                <button onClick={() => { setViewMode('directory'); setSelectedManual(null); }} className={`command-btn px-3 py-2 ${viewMode === 'directory' ? 'nav-pill-active' : 'text-slate-400 hover:text-white'}`} title="Support">
+                                <button onClick={() => handleSetView('directory')} className={`command-btn px-3 py-2 ${viewMode === 'directory' ? 'nav-pill-active' : 'text-slate-400 hover:text-white'}`} title="Support">
                                     <Icons.Support />
                                 </button>
                                 <button onClick={() => window.open('https://elliscoffee.com', '_blank')} className="command-btn px-3 py-2 text-slate-400 hover:text-white" title="Ellis Website">
@@ -251,11 +262,18 @@
                                 </button>
                             </div>
                         </div>
+
+                        {/* SUB-HEADER ACTION BAR (Visible on mobile/desktop for Refresh) */}
+                        <div className="px-3 pb-2 flex justify-center">
+                             <button onClick={fetchManuals} className="flex items-center gap-2 px-4 py-1.5 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-all">
+                                <Icons.Refresh /><span className="tech-pill-label">Refresh System</span>
+                             </button>
+                        </div>
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
                         {/* Sidebar Menu - Fixed positioning relative to header */}
-                        <aside className={`fixed inset-y-0 left-0 z-40 bg-black/95 backdrop-blur-3xl lg:backdrop-blur-none transition-all duration-400 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full lg:translate-x-0 lg:w-80 lg:opacity-100'} border-r border-white/5 flex flex-col pt-0`}>
+                        <aside className={`fixed lg:relative inset-y-0 left-0 z-40 bg-black/95 lg:bg-transparent backdrop-blur-3xl lg:backdrop-blur-none transition-all duration-400 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full lg:translate-x-0 lg:w-80 lg:opacity-100'} border-r border-white/5 flex flex-col`}>
                             
                             {/* SLIM MASTER BUTTON - Pinned at Top of Sidebar */}
                             <div className="p-4 border-b border-white/5 bg-black/40">
@@ -271,7 +289,7 @@
                                         <div className="status-pulse bg-white/40"></div>
                                     </button>
                                 ) : (
-                                    <div className="h-11 rounded-xl bg-white/5 animate-pulse"></div>
+                                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center opacity-30"><p className="text-[8px] font-black uppercase tracking-[0.2em] animate-pulse">Syncing...</p></div>
                                 )}
                             </div>
 
