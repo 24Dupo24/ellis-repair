@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ellis Coffee Part Finder</title>
+    <title>Ellis Coffee Repair Hub Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -11,10 +11,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap');
         
-        :root {
-            --app-height: 100dvh;
-        }
-
+        :root { --app-height: 100dvh; }
         body, html { 
             height: var(--app-height);
             margin: 0; 
@@ -25,43 +22,16 @@
         }
         
         #root { height: 100%; display: flex; flex-direction: column; }
+        iframe { background-color: #000000; border: none; width: 100%; height: 100%; }
 
-        iframe { 
-            background-color: #000000; 
-            border: none; 
-            width: 100%; 
-            height: 100%; 
-        }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
         
-        .pdf-container { position: relative; height: 100%; width: 100%; overflow: hidden; }
-
-        .brand-badge {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 8px;
-            padding: 1px 5px;
-            border-radius: 3px;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            font-weight: 700;
-        }
-
-        .logo-shine {
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-        }
+        .logo-shine { position: relative; overflow: hidden; }
         .logo-shine::after {
             content: "";
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -50%; left: -50%; width: 200%; height: 200%;
             background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
             transform: rotate(45deg);
             animation: shine 4s infinite;
@@ -73,28 +43,33 @@
 
         .sidebar-item-active {
             background: linear-gradient(90deg, #dc2626 0%, #7f1d1d 100%);
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        }
+
+        .master-btn-highlight {
+            background: linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 0 30px rgba(220, 38, 38, 0.45);
+            position: relative;
+            overflow: hidden;
         }
 
         .glass-panel {
-            background: rgba(5, 5, 5, 0.95);
+            background: rgba(10, 10, 10, 0.98);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
-            border-top: 1px solid rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(255,255,255,0.08);
         }
 
-        .bottom-nav-active {
-            color: #ef4444;
+        .nav-icon-btn {
+            @apply p-2 text-slate-400 hover:text-white transition-colors active:scale-90 flex items-center justify-center cursor-pointer;
         }
-        
-        /* The Red Line Indicator */
+
+        .bottom-nav-active { color: #ef4444; }
         .bottom-nav-active::after {
             content: '';
             position: absolute;
-            top: -1px;
-            left: 20%;
-            right: 20%;
-            height: 2px;
+            top: -1px; left: 25%; right: 25%; height: 2.5px;
             background: #ef4444;
             box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
             border-radius: 0 0 10px 10px;
@@ -106,9 +81,28 @@
             50% { opacity: 0.6; transform: scale(0.98); }
         }
 
-        .safe-area-bottom {
-            padding-bottom: env(safe-area-inset-bottom, 0px);
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 12px); }
+
+        .brand-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-weight: 800;
         }
+
+        .ai-pulse-glow {
+            animation: ai-glow 2s infinite alternate;
+        }
+        @keyframes ai-glow {
+            from { box-shadow: 0 0 5px rgba(168, 85, 247, 0.2); }
+            to { box-shadow: 0 0 15px rgba(168, 85, 247, 0.6); }
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body>
@@ -117,178 +111,292 @@
     <script type="text/babel">
         const { useState, useMemo, useEffect, useRef } = React;
         
-        // --- GEMINI API CONFIG ---
-        const apiKey = ""; // <--- PASTE YOUR AIza... KEY HERE
-        const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
-        
-        // --- APP CONFIG ---
+        // --- CONFIG ---
         const GITHUB_USERNAME = "24Dupo24"; 
         const REPO_NAME = "ellis-repair"; 
         const BASE_PDF_PATH = "work"; 
         const LOGO_URL = `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/images/ellis-coffee-logo.png`; 
+        const USER_EMAIL = "dupo24@gmail.com";
 
-        const Icon = ({ path, className = "w-4 h-4", fill = "none", strokeWidth = "2.5" }) => (
-            <svg className={className} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-                {path}
-            </svg>
-        );
+        // SMART API DETECTION: Uses Preview model in this testing window, uses stable production model on GitHub Pages
+        const isPreviewEnv = window.location.hostname === '' || window.location.hostname.includes('google');
+        const MODEL_NAME = isPreviewEnv ? "gemini-2.5-flash-preview-09-2025" : "gemini-1.5-flash"; 
+        const API_VERSION = "v1beta";
 
         const Icons = {
-            Search: () => <Icon path={<><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>} />,
-            BookOpen: (props) => <Icon {...props} path={<><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></>} />,
-            Menu: () => <Icon path={<><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></>} />,
-            X: () => <Icon path={<><path d="M18 6 6 18"/><path d="m6 6 12 12"/></>} />,
-            ChevronDown: (props) => <Icon {...props} className="w-3 h-3" path={<path d="m6 9 6 6 6-6"/>} />,
-            ChevronRight: (props) => <Icon {...props} className="w-3 h-3" path={<path d="m9 18 6-6-6-6"/>} />,
-            ChevronLeft: (props) => <Icon {...props} className="w-5 h-5" path={<path d="m15 18-6-6 6-6"/>} />,
-            RotateCw: (props) => <Icon {...props} path={<><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></>} />,
-            ExternalLink: () => <Icon className="w-4 h-4" path={<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>} />,
-            Home: (props) => <Icon {...props} path={<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />} />,
-            Phone: (props) => <Icon {...props} path={<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />} />,
-            Sparkles: (props) => <Icon {...props} path={<path d="m12 3 1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3Z" />} />,
-            Folder: (props) => <Icon {...props} path={<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />} />,
-            Send: (props) => <Icon {...props} path={<path d="m22 2-7 20-4-9-9-4Z" />} />,
-            Camera: (props) => <Icon {...props} path={<><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></>} />
-        };
-
-        const getBrandInfo = (name) => {
-            const n = name.toUpperCase();
-            if (n.includes('BUNN')) return { label: 'BUNN', color: 'bg-red-500/10 text-red-400 border-red-500/20', icon: 'B' };
-            if (n.includes('CURTIS')) return { label: 'CURTIS', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20', icon: 'C' };
-            if (n.includes('FETCO')) return { label: 'FETCO', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20', icon: 'F' };
-            if (n.includes('GRIND')) return { label: 'GRINDMASTER', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', icon: 'G' };
-            if (n.includes('NEWCO')) return { label: 'NEWCO', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', icon: 'N' };
-            return { label: 'OEM', color: 'bg-slate-500/10 text-slate-400 border-slate-500/20', icon: 'P' };
+            Search: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
+            Folder: (props) => <svg className={`w-4 h-4 ${props.className}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>,
+            Sparkles: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="m12 3 1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3Z"/></svg>,
+            Phone: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 .8 2.81 2 2 0 0 1 22 16.92z"/></svg>,
+            Globe: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+            Mail: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>,
+            Home: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>,
+            Book: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
+            Menu: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>,
+            X: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
+            ChevronDown: () => <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>,
+            ChevronRight: () => <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>,
+            ChevronLeft: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>,
+            Send: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/></svg>,
+            Star: () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
+            Key: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778ZM12 12l.94-2.317c.214-.526.32-.79.489-.982a2 2 0 0 1 .633-.475c.21-.106.45-.147.93-.227L16.5 7.5l.5-2.5 3 1 1.5-1.5L23 6l-1.5 1.5 1.5 1.5-2.5.5-1 3-1.5.5-1.5-1.5-.5 1.5-2.5.5-1.5-1.5-1.5 1.5Z"/></svg>,
+            External: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
+            Sync: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>,
+            Trash: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
         };
 
         const App = () => {
+            const [manuals, setManuals] = useState([]);
+            const [viewMode, setViewMode] = useState('manual');
+            const [selectedManual, setSelectedManual] = useState(null);
             const [searchQuery, setSearchQuery] = useState('');
-            const [selectedMachine, setSelectedMachine] = useState(null);
-            const [viewMode, setViewMode] = useState('manual'); 
-            const [isMenuOpen, setIsMenuOpen] = useState(window.innerWidth >= 768);
-            const [refreshKey, setRefreshKey] = useState(0); 
-            const [expandedBrands, setExpandedBrands] = useState({});
+            const [isMenuOpen, setIsMenuOpen] = useState(false); // CLOSED on startup
+            const [expandedBrands, setExpandedBrands] = useState({}); // COLLAPSED on startup
+            const [isLoading, setIsLoading] = useState(true);
+            const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_key') || '');
 
-            // ✨ AI State
-            const [aiQuery, setAiQuery] = useState('');
             const [aiChat, setAiChat] = useState([]);
+            const [aiQuery, setAiQuery] = useState('');
             const [isAiThinking, setIsAiThinking] = useState(false);
-            const [attachedImage, setAttachedImage] = useState(null);
             const chatEndRef = useRef(null);
 
-            // --- 🛠️ YOUR MANUAL FILE LIST (ADD FILES HERE) ---
-            // Just add the exact filename as it appears in your GitHub folder
-            const manualFiles = [
-                { name: "MASTER STOCK INVENTORY", file: "ellis_parts_list_complete.pdf", isMaster: true },
-                { name: "Bunn ICB-DV Setup", file: "Bunn_ICB.pdf" },
-                { name: "Curtis G4 Parts", file: "Curtis_G4.pdf" },
-                { name: "Fetco 2131 Wiring", file: "Fetco_2131.pdf" },
-                { name: "Grindmaster Parts", file: "Grindmaster_Parts.pdf" },
-                { name: "Newco Bistro", file: "Newco_Bistro.pdf" }
-            ];
+            // --- FUNCTION DEFINITIONS ---
+            
+            const handleHome = () => { 
+                setSelectedManual(null); 
+                setViewMode('manual'); 
+                setIsMenuOpen(false); 
+            };
 
-            const machines = useMemo(() => {
-                return manualFiles.map((m, index) => {
-                    const rawUrl = `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/${BASE_PDF_PATH}/${m.file}`;
-                    return {
-                        id: `m-${index}`,
-                        ...m,
-                        url: rawUrl,
-                        brand: m.isMaster ? { label: 'STOCK', color: 'bg-red-600 text-white border-red-500 font-black shadow-inner', icon: '★' } : getBrandInfo(m.name),
-                    };
+            const handleManualSelect = (m) => { 
+                setSelectedManual(m); 
+                setViewMode('manual'); 
+                if (window.innerWidth < 768) setIsMenuOpen(false); 
+            };
+
+            const saveApiKey = (providedKey = null) => {
+                const currentKey = localStorage.getItem('gemini_key') || '';
+                const key = providedKey || prompt("Paste Gemini API Key:", currentKey);
+                if (key) {
+                    const trimmed = key.trim();
+                    localStorage.setItem('gemini_key', trimmed);
+                    setApiKey(trimmed);
+                    if(!providedKey) alert("✅ API Key Saved Securely!");
+                }
+            };
+
+            const clearApiKey = () => {
+                if(confirm("Are you sure you want to clear your AI Key from this device?")) {
+                    localStorage.removeItem('gemini_key');
+                    setApiKey('');
+                    setAiChat([]);
+                }
+            };
+
+            const callGeminiRaw = async (promptText) => {
+                const effectiveKey = apiKey || "";
+                const url = `https://generativelanguage.googleapis.com/${API_VERSION}/models/${MODEL_NAME}:generateContent?key=${effectiveKey}`;
+                
+                const sysPrompt = "You are a Master Coffee Equipment Technician assisting field techs at Ellis Coffee. Keep responses technical, highly accurate, and bulleted when possible. Give precise part fixes.";
+                
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: promptText }] }],
+                            systemInstruction: { parts: [{ text: sysPrompt }] }
+                        })
+                    });
+                    if (!res.ok) {
+                        const err = await res.json();
+                        throw new Error(err.error?.message || "API Error");
+                    }
+                    const data = await res.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
+                } catch (err) {
+                    throw err;
+                }
+            };
+
+            const callGemini = async (query) => {
+                if (!apiKey) return;
+                setIsAiThinking(true);
+                try {
+                    const context = selectedManual ? `CONTEXT: Tech is viewing manual "${selectedManual.name}".\n\n` : "";
+                    const text = await callGeminiRaw(context + query);
+                    setAiChat(p => [...p, { role: 'ai', text: text || "No response received." }]);
+                } catch (e) {
+                    setAiChat(p => [...p, { role: 'ai', text: `🚨 API Error: ${e.message}. Double-check your API key or data signal.` }]);
+                } finally { setIsAiThinking(false); }
+            };
+
+            const handleAiSend = (e) => {
+                if (e) e.preventDefault();
+                if (!aiQuery.trim()) return;
+                const text = aiQuery;
+                setAiChat(prev => [...prev, { role: 'user', text: text }]);
+                setAiQuery('');
+                callGemini(text);
+            };
+
+            const sendQuickPrompt = (promptText) => {
+                setAiChat(prev => [...prev, { role: 'user', text: promptText }]);
+                callGemini(promptText);
+            };
+
+            const toggleBrand = (brandName) => {
+                setExpandedBrands(prev => ({ ...prev, [brandName]: !prev[brandName] }));
+            };
+
+            const getBrandInfo = (name) => {
+                const n = name.toUpperCase();
+                // PRIORITY 1: BUNN (Ensures grinders stay in BUNN)
+                if (n.includes('BUNN')) return { label: 'BUNN', color: 'bg-red-500/10 text-red-400 border-red-500/20', icon: 'B' };
+                // PRIORITY 2: BRANDED CATEGORIES
+                if (n.includes('SIMONELLI')) return { label: 'NUOVA SIMONELLI', color: 'bg-blue-600/10 text-blue-400 border-blue-600/20', icon: 'S' };
+                if (n.includes('CURTIS')) return { label: 'CURTIS', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20', icon: 'C' };
+                if (n.includes('FETCO')) return { label: 'FETCO', color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20', icon: 'F' };
+                if (n.includes('BISTRO') || n.includes('NEWCO')) return { label: 'NEWCO', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', icon: 'N' };
+                if (n.includes('GRINDMASTER')) return { label: 'GRINDMASTER', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', icon: 'G' };
+                if (n.includes('CECILWARE')) return { label: 'CECILWARE', color: 'bg-orange-500/10 text-orange-400 border-orange-500/20', icon: 'CW' };
+                if (n.includes('CORNELIUS')) return { label: 'CORNELIUS', color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20', icon: 'CO' };
+                if (n.includes('EVOCA')) return { label: 'EVOCA', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20', icon: 'E' };
+                if (n.includes('FLAVIA')) return { label: 'FLAVIA', color: 'bg-pink-500/10 text-pink-400 border-pink-500/20', icon: 'FL' };
+                return { label: 'OTHER', color: 'bg-slate-500/10 text-slate-400 border-slate-500/20', icon: '?' };
+            };
+
+            const fetchManuals = async () => {
+                setIsLoading(true);
+                try {
+                    const res = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${BASE_PDF_PATH}`);
+                    if (!res.ok) throw new Error("Connection failed.");
+                    const data = await res.json();
+                    
+                    const pdfs = data.filter(f => f.name.toLowerCase().endsWith('.pdf')).map(f => {
+                        const rawName = f.name.replace('.pdf', '').replace(/_/g, ' ');
+                        const lowerName = f.name.toLowerCase();
+                        
+                        // BULLETPROOF Master List Logic
+                        const isMaster = lowerName.includes('ellis parts list') || (lowerName.includes('ellis') && lowerName.includes('parts'));
+                        
+                        return {
+                            id: f.sha, name: rawName, file: f.name,
+                            url: `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/${BASE_PDF_PATH}/${f.name}`,
+                            brand: getBrandInfo(rawName), isMaster
+                        };
+                    });
+                    setManuals(pdfs);
+                } catch (e) {
+                    console.error("Manual fetch failed:", e);
+                } finally { setIsLoading(false); }
+            };
+
+            useEffect(() => { fetchManuals(); }, []);
+            useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [aiChat]);
+
+            const masterManual = useMemo(() => manuals.find(m => m.isMaster), [manuals]);
+            
+            const groupedManuals = useMemo(() => {
+                const groups = {};
+                // Filter out master manual from regular groups
+                const filtered = manuals.filter(m => !m.isMaster && m.name.toLowerCase().includes(searchQuery.toLowerCase()));
+                filtered.forEach(m => {
+                    const groupName = m.brand.label;
+                    if (!groups[groupName]) groups[groupName] = [];
+                    groups[groupName].push(m);
                 });
-            }, []);
+                return Object.keys(groups).sort().map(name => ({ name, items: groups[name] }));
+            }, [manuals, searchQuery]);
+
+            const sendEmail = () => {
+                const subject = `[Ellis Hub PDF] ${selectedManual?.name || 'Technical Doc'}`;
+                const body = `Documentation link from Ellis Coffee Repair Hub:\n\nManual: ${selectedManual?.name || 'Referenced Document'}\nLink: ${selectedManual?.url || 'https://24dupo24.github.io/ellis-repair/'}`;
+                window.location.href = `mailto:${USER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            };
 
             const techSupport = [
                 { name: "Grindmaster Support", phone: "1-800-695-4500", brand: "GRINDMASTER" },
                 { name: "Bunn Technical Support", phone: "1-800-637-8606", brand: "BUNN" },
                 { name: "Curtis Technical Service", phone: "1-800-421-6150", brand: "CURTIS" },
-                { name: "Fetco Tech Support", phone: "1-800-338-2699", brand: "FETCO" },
-                { name: "Newco Support Team", phone: "1-800-325-7867", brand: "NEWCO" }
+                { name: "Nuova Simonelli Service", phone: "360-366-2226", brand: "NUOVA SIMONELLI" },
+                { name: "Newco Support Team", phone: "1-800-325-7867", brand: "NEWCO" },
+                { name: "Fetco Tech Support", phone: "1-800-338-2699", brand: "FETCO" }
             ];
-
-            useEffect(() => {
-                const groups = {};
-                machines.forEach(m => { groups[m.isMaster ? "MASTER LISTS" : m.brand.label] = true; });
-                setExpandedBrands(groups);
-            }, [machines]);
-
-            useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [aiChat]);
-
-            const groupedMachines = useMemo(() => {
-                const groups = {};
-                const filtered = machines.filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase()));
-                filtered.forEach(m => {
-                    const groupName = m.isMaster ? "MASTER LISTS" : m.brand.label;
-                    if (!groups[groupName]) groups[groupName] = [];
-                    groups[groupName].push(m);
-                });
-                return Object.keys(groups).sort((a, b) => a === "MASTER LISTS" ? -1 : a.localeCompare(b))
-                    .map(name => ({ name, items: groups[name] }));
-            }, [searchQuery, machines]);
-
-            const handleSelectMachine = (machine) => {
-                setSelectedMachine(machine);
-                setViewMode('manual');
-                if (window.innerWidth < 768) setIsMenuOpen(false);
-            };
-
-            const callGemini = async (prompt, imageData = null) => {
-                if (!apiKey) {
-                    setAiChat(prev => [...prev, { role: 'ai', text: "🚨 API KEY ERROR: Please ensure you pasted your AIza... key into index.html." }]);
-                    return;
-                }
-                setIsAiThinking(true);
-                const context = selectedMachine ? `Working on ${selectedMachine.name}. ` : "";
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: context + prompt }, ...(imageData ? [{ inlineData: { mimeType: "image/png", data: imageData.split(',')[1] } }] : [])] }],
-                            systemInstruction: { parts: [{ text: "Expert coffee machine repair tech for Ellis Coffee." }] }
-                        })
-                    });
-                    const result = await response.json();
-                    setAiChat(prev => [...prev, { role: 'ai', text: result.candidates[0].content.parts[0].text }]);
-                } catch (e) {
-                    setAiChat(prev => [...prev, { role: 'ai', text: "Check your signal or API key." }]);
-                } finally { setIsAiThinking(false); }
-            };
 
             return (
                 <div className="flex flex-col h-full bg-black text-white overflow-hidden">
                     <header className="bg-[#050505] border-b border-white/5 p-3 flex justify-between items-center z-50 shrink-0">
-                        <div className="logo-shine h-8 sm:h-10 cursor-pointer" onClick={() => {setSelectedMachine(null); setViewMode('manual');}}>
-                            <img src={LOGO_URL} alt="Logo" className="h-full w-auto object-contain" />
+                        <div className="flex items-center gap-4">
+                            <div className="logo-shine h-8 sm:h-10 cursor-pointer shrink-0" onClick={handleHome}>
+                                <img src={LOGO_URL} alt="Logo" className="h-full w-auto" />
+                            </div>
+                            {/* TOP NAV ACTIONS */}
+                            <div className="hidden sm:flex items-center gap-1 border-l border-white/10 pl-4">
+                                <button onClick={() => setViewMode('directory')} className="nav-icon-btn" title="Support Directory"><Icons.Phone /></button>
+                                <button onClick={() => window.open('https://elliscoffee.com', '_blank')} className="nav-icon-btn" title="Ellis Website"><Icons.Globe /></button>
+                                <button onClick={sendEmail} className="nav-icon-btn" title="Email Document"><Icons.Mail /></button>
+                                <button onClick={() => setViewMode('ai')} className="nav-icon-btn text-purple-400 hover:text-purple-300" title="AI Field Hub"><Icons.Sparkles /></button>
+                                <button onClick={() => saveApiKey()} className="nav-icon-btn text-amber-500" title="Set AI Key"><Icons.Key /></button>
+                            </div>
                         </div>
-                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-400">
-                            {isMenuOpen ? <Icons.X className="w-5 h-5" /> : <Icons.Menu className="w-5 h-5" />}
-                        </button>
+                        <div className="flex items-center gap-2">
+                             {/* MOBILE NAV ACTIONS */}
+                            <div className="flex sm:hidden items-center gap-1">
+                                <button onClick={sendEmail} className="p-2 text-slate-400"><Icons.Mail /></button>
+                                <button onClick={() => saveApiKey()} className="p-2 text-amber-500"><Icons.Key /></button>
+                            </div>
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-400">
+                                {isMenuOpen ? <Icons.X /> : <Icons.Menu />}
+                            </button>
+                        </div>
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
-                        <aside className={`fixed inset-0 z-40 bg-black transition-all duration-300 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full md:relative md:translate-x-0 md:w-80'} border-white/5 flex flex-col overflow-hidden`}>
-                            <div className="p-4 bg-[#050505] shrink-0">
-                                <div className="relative">
-                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-700"><Icons.Search /></div>
-                                    <input type="text" placeholder="Search..." className="w-full bg-white/5 border border-white/5 rounded-xl py-3 pl-10 text-xs" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                        {/* Sidebar */}
+                        <aside className={`fixed inset-0 z-40 bg-black transition-transform duration-300 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full md:relative md:translate-x-0 md:w-80'} border-r border-white/5 flex flex-col`}>
+                            
+                            {/* MASTER STOCK PINNED RED BUTTON */}
+                            <div className="p-4 bg-[#050505] border-b border-white/5">
+                                {masterManual ? (
+                                    <button 
+                                        onClick={() => { handleManualSelect(masterManual); }}
+                                        className={`w-full p-4 rounded-2xl flex items-center gap-4 transition-all active:scale-95 ${selectedManual?.id === masterManual.id ? 'master-btn-highlight ring-2 ring-red-500' : 'master-btn-highlight opacity-90 hover:opacity-100'}`}
+                                    >
+                                        <div className="bg-white/20 p-2 rounded-xl text-white shadow-xl animate-pulse"><Icons.Star /></div>
+                                        <div className="text-left min-w-0">
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-red-100 opacity-60 leading-none">Inventory</p>
+                                            <p className="text-xs font-black uppercase tracking-tight text-white leading-tight truncate mt-1">ELLIS PARTS LIST</p>
+                                        </div>
+                                    </button>
+                                ) : (
+                                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-center opacity-40"><p className="text-[10px] font-black uppercase tracking-widest animate-pulse">Syncing Technical Data...</p></div>
+                                )}
+                            </div>
+
+                            <div className="p-4 bg-[#050505] shrink-0 border-b border-white/5">
+                                <div className="relative group">
+                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"><Icons.Search /></div>
+                                    <input type="text" placeholder="Search manuals..." className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-xs focus:ring-1 focus:ring-red-600 outline-none" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                                 </div>
                             </div>
-                            <div className="flex-1 overflow-y-auto px-3 pb-24 custom-scrollbar">
-                                {groupedMachines.map(group => (
-                                    <div key={group.name} className="mb-2">
-                                        <button onClick={() => toggleBrand(group.name)} className="w-full flex items-center justify-between px-3 py-2 text-[10px] font-black tracking-widest text-slate-500 uppercase">
-                                            <div className="flex items-center gap-2"><Icons.Folder className={`w-3.5 h-3.5 ${expandedBrands[group.name] ? 'text-red-500' : 'text-slate-700'}`} /><span>{group.name}</span></div>
+
+                            <div className="flex-1 overflow-y-auto px-2 pb-24 custom-scrollbar mt-2">
+                                {isLoading ? (
+                                    <div className="p-10 text-center opacity-20 text-[10px] font-black uppercase tracking-widest">Scanning Technical Folder...</div>
+                                ) : groupedManuals.map(group => (
+                                    <div key={group.name} className="mb-4 px-1">
+                                        <button onClick={() => toggleBrand(group.name)} className="w-full flex items-center justify-between px-3 py-1 text-[10px] font-black tracking-[0.2em] text-slate-500 uppercase hover:text-slate-300 transition-colors">
+                                            <div className="flex items-center gap-2"><Icons.Folder className={expandedBrands[group.name] ? 'text-red-600' : 'text-slate-800'} /><span>{group.name}</span></div>
                                             {expandedBrands[group.name] ? <Icons.ChevronDown /> : <Icons.ChevronRight />}
                                         </button>
                                         {expandedBrands[group.name] && (
-                                            <div className="mt-1 space-y-0.5">
+                                            <div className="mt-2 space-y-1 ml-2">
                                                 {group.items.map(m => (
-                                                    <button key={m.id} onClick={() => handleSelectMachine(m)} className={`w-full text-left p-3 rounded-xl flex items-center justify-between group ${selectedMachine?.id === m.id ? 'sidebar-item-active' : 'hover:bg-white/5'}`}>
+                                                    <button key={m.id} onClick={() => { handleManualSelect(m); }} className={`w-full text-left p-3.5 rounded-xl flex items-center justify-between group transition-all ${selectedManual?.id === m.id ? 'sidebar-item-active' : 'hover:bg-white/5'}`}>
                                                         <div className="flex items-center gap-3 min-w-0">
-                                                            <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0 ${selectedMachine?.id === m.id ? 'bg-white/20' : m.brand.color}`}>{m.brand.icon}</div>
-                                                            <span className={`font-bold text-[11px] truncate uppercase ${selectedMachine?.id === m.id ? 'text-white' : 'text-slate-400'}`}>{m.name}</span>
+                                                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0 ${selectedManual?.id === m.id ? 'bg-white/20' : m.brand.color}`}>{m.brand.icon}</div>
+                                                            <span className={`font-bold text-[11px] truncate uppercase tracking-tight ${selectedManual?.id === m.id ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>{m.name}</span>
                                                         </div>
                                                     </button>
                                                 ))}
@@ -299,63 +407,127 @@
                             </div>
                         </aside>
 
-                        <main className="flex-1 bg-black flex flex-col relative overflow-hidden">
+                        <main className="flex-1 bg-black relative flex flex-col overflow-hidden">
                             {viewMode === 'ai' ? (
-                                <div className="flex flex-col h-full bg-black pb-32 sm:pb-0">
-                                    <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-                                        {aiChat.map((msg, i) => (
-                                            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                                <div className={`max-w-[90%] p-4 rounded-2xl text-xs ${msg.role === 'user' ? 'bg-red-600' : 'bg-white/5 border border-white/5 text-slate-300'}`}>
-                                                    {msg.image && <img src={msg.image} className="rounded-lg mb-2 max-h-60" />}
-                                                    <p className="whitespace-pre-wrap">{msg.text}</p>
+                                <div className="flex flex-col h-full bg-black relative">
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar pb-40">
+                                        {!apiKey ? (
+                                            <div className="max-w-md mx-auto mt-20 p-8 bg-white/5 rounded-3xl border border-white/10 text-center shadow-2xl">
+                                                <div className="w-16 h-16 bg-purple-600/20 text-purple-400 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_0_20px_rgba(168,85,247,0.3)]"><Icons.Key /></div>
+                                                <h3 className="text-xl font-black uppercase mb-4 text-white">Unlock AI Hub</h3>
+                                                <p className="text-xs text-slate-400 font-bold mb-6 px-4 text-center">Paste your Gemini API key below. This device will store it locally for your repairs.</p>
+                                                <div className="flex flex-col gap-3">
+                                                    <input 
+                                                        type="text" 
+                                                        id="api_key_chat_entry"
+                                                        placeholder="Paste AIzaSy... Key Here" 
+                                                        className="bg-black border border-white/10 rounded-xl px-4 py-4 text-sm outline-none focus:border-purple-600 text-white font-mono text-center"
+                                                    />
+                                                    <button 
+                                                        onClick={() => {
+                                                            const val = document.getElementById('api_key_chat_entry').value;
+                                                            if(val) saveApiKey(val);
+                                                        }}
+                                                        className="bg-purple-600 py-4 rounded-xl font-black text-xs uppercase tracking-widest mt-2 active:scale-95 transition-transform shadow-lg shadow-purple-900/20"
+                                                    >
+                                                        Activate AI Diagnostics
+                                                    </button>
                                                 </div>
                                             </div>
-                                        ))}
-                                        {isAiThinking && <div className="ai-loading text-[10px] font-black text-purple-400 uppercase">Thinking...</div>}
-                                        <div ref={chatEndRef} />
+                                        ) : (
+                                            <div className="max-w-3xl mx-auto space-y-4 pb-10">
+                                                <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+                                                    <div className="flex items-center gap-2 text-purple-400">
+                                                        <Icons.Sparkles /> <span className="text-xs font-black uppercase tracking-widest">Field Assistant</span>
+                                                    </div>
+                                                    <button onClick={clearApiKey} className="text-slate-500 hover:text-red-400 transition-colors flex items-center gap-2 text-[10px] font-black uppercase" title="Clear API Key"><Icons.Trash /> Clear Key</button>
+                                                </div>
+                                                
+                                                {aiChat.length === 0 && (
+                                                    <div className="py-20 text-center opacity-40">
+                                                        <Icons.Sparkles className="mx-auto mb-4 w-10 h-10" />
+                                                        <p className="text-xs font-black uppercase tracking-widest">Ready for Technical Queries</p>
+                                                        <p className="text-[10px] mt-2 font-bold max-w-xs mx-auto">Ask a question or tap a quick prompt below.</p>
+                                                    </div>
+                                                )}
+
+                                                {aiChat.map((msg, i) => (
+                                                    <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                                        <div className={`max-w-[90%] p-4 rounded-2xl text-xs leading-relaxed font-medium whitespace-pre-wrap ${msg.role === 'user' ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/20' : 'bg-white/5 border border-white/10 text-slate-200'}`}>{msg.text}</div>
+                                                    </div>
+                                                ))}
+                                                {isAiThinking && <div className="flex justify-start"><div className="bg-white/5 border border-white/10 p-4 rounded-2xl text-[10px] font-black text-purple-400 uppercase tracking-widest ai-pulse-glow">Consulting Manuals...</div></div>}
+                                                <div ref={chatEndRef} />
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="p-4 glass-panel safe-area-bottom">
-                                        <form onSubmit={(e) => {e.preventDefault(); handleAiSend();}} className="flex gap-2">
-                                            <label className="p-3 bg-white/5 rounded-xl cursor-pointer shrink-0 border border-white/5">
-                                                <Icons.Camera className="w-5 h-5 text-slate-400" />
-                                                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => {
-                                                    const reader = new FileReader();
-                                                    reader.onloadend = () => setAttachedImage(reader.result);
-                                                    reader.readAsDataURL(e.target.files[0]);
-                                                }} />
-                                            </label>
-                                            <input value={aiQuery} onChange={e => setAiQuery(e.target.value)} placeholder="Ask about an error code..." className="flex-1 bg-white/5 rounded-xl px-4 text-sm outline-none border border-white/5" />
-                                            <button type="submit" className="p-3 bg-purple-600 rounded-xl shrink-0"><Icons.Send className="w-5 h-5" /></button>
-                                        </form>
+                                    
+                                    {/* STREAMLINED INPUT AREA */}
+                                    {apiKey && (
+                                        <div className="p-4 glass-panel safe-bottom absolute bottom-0 left-0 right-0 z-20 border-t border-white/10">
+                                            <div className="max-w-3xl mx-auto">
+                                                {/* QUICK PROMPT CHIPS */}
+                                                <div className="flex gap-2 overflow-x-auto pb-3 hide-scrollbar">
+                                                    {selectedManual && (
+                                                        <button onClick={() => sendQuickPrompt(`Summarize the critical maintenance intervals and electrical specs for ${selectedManual.name}.`)} className="shrink-0 bg-white/5 hover:bg-purple-600/20 border border-white/10 px-4 py-2 rounded-full text-[10px] font-black uppercase whitespace-nowrap transition-colors">📄 Analyze Active Manual</button>
+                                                    )}
+                                                    <button onClick={() => sendQuickPrompt("What are the most common error codes for commercial brewers and what do they mean?")} className="shrink-0 bg-white/5 hover:bg-purple-600/20 border border-white/10 px-4 py-2 rounded-full text-[10px] font-black uppercase whitespace-nowrap transition-colors">⚠️ Common Errors</button>
+                                                    <button onClick={() => sendQuickPrompt("Draft a blank service report template I can copy and paste.")} className="shrink-0 bg-white/5 hover:bg-purple-600/20 border border-white/10 px-4 py-2 rounded-full text-[10px] font-black uppercase whitespace-nowrap transition-colors">📋 Blank Report Template</button>
+                                                </div>
+                                                
+                                                <form onSubmit={handleAiSend} className="flex gap-2">
+                                                    <input value={aiQuery} onChange={e => setAiQuery(e.target.value)} placeholder="Type a model, error code, or question..." className="flex-1 bg-black border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-purple-500 shadow-inner" />
+                                                    <button type="submit" disabled={isAiThinking} className="p-3.5 bg-purple-600 rounded-xl active:scale-95 transition-transform disabled:opacity-50 flex items-center justify-center w-12"><Icons.Send /></button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : viewMode === 'directory' ? (
+                                <div className="flex-1 overflow-y-auto p-4 sm:p-10 bg-black pb-32 custom-scrollbar">
+                                    <div className="max-w-2xl mx-auto space-y-3">
+                                        <div className="flex items-center gap-4 mb-8 border-b border-white/5 pb-6 text-left">
+                                            <div className="bg-red-600 p-4 rounded-2xl shadow-lg"><Icons.Phone /></div>
+                                            <div><h2 className="text-2xl font-black uppercase tracking-widest leading-none text-white">Engineering Support</h2><p className="text-[10px] text-slate-500 font-bold mt-2 uppercase tracking-widest italic text-left">Direct technical manufacturer lines.</p></div>
+                                        </div>
+                                        {techSupport.map((contact, idx) => (
+                                            <div key={idx} className="glass-panel border border-white/5 p-5 rounded-2xl flex items-center justify-between hover:border-white/20 transition-all">
+                                                <div className="min-w-0 pr-4">
+                                                    <span className={`brand-badge border ${getBrandInfo(contact.brand).color}`}>{contact.brand}</span>
+                                                    <h4 className="text-sm font-black mt-2 text-slate-200">{contact.name}</h4>
+                                                </div>
+                                                <a href={`tel:${contact.phone}`} className="bg-white/5 hover:bg-emerald-600 px-6 py-3 rounded-xl font-black text-[11px] transition-all flex items-center gap-2 border border-white/5"><Icons.Phone /> <span className="hidden sm:inline">{contact.phone}</span></a>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
-                            ) : selectedMachine ? (
-                                <div className="flex flex-col h-full bg-black">
-                                    <div className="flex-1 relative">
-                                        <iframe key={`${selectedMachine.id}-${refreshKey}`} src={pdfViewerUrl} className="viewer-frame" />
-                                        <button onClick={handleHome} className="md:hidden absolute top-4 left-4 z-50 bg-red-600 w-10 h-10 rounded-full flex items-center justify-center floating-back"><Icons.ChevronLeft /></button>
-                                        <div className="absolute top-4 right-4 flex flex-col gap-2">
-                                            <a href={selectedMachine.url} target="_blank" className="bg-red-600 p-3 rounded-xl"><Icons.ExternalLink /></a>
-                                            <button onClick={() => setViewMode('ai')} className="bg-purple-600 p-3 rounded-xl"><Icons.Sparkles className="w-4 h-4" /></button>
-                                        </div>
-                                    </div>
-                                    <div className="p-3 bg-[#050505] border-t border-white/5 pb-20 sm:pb-3">
-                                        <button onClick={() => setRefreshKey(k => k+1)} className="w-full bg-white/5 py-4 rounded-xl font-black text-[10px] uppercase">Reload Manual</button>
+                            ) : selectedManual ? (
+                                <div className="flex-1 flex flex-col relative">
+                                    <iframe key={selectedManual.id} src={`https://docs.google.com/viewer?url=${encodeURIComponent(selectedManual.url)}&embedded=true`} className="flex-1" />
+                                    <button onClick={() => { setSelectedManual(null); }} className="md:hidden absolute top-4 left-4 z-50 bg-red-600 w-11 h-11 rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-transform"><Icons.ChevronLeft className="text-white"/></button>
+                                    <div className="absolute top-4 right-4 flex flex-col gap-3">
+                                        <a href={selectedManual.url} target="_blank" className="bg-red-600 p-3 rounded-xl border border-red-500 shadow-2xl active:scale-90 flex items-center justify-center" title="Open Externally"><Icons.External /></a>
+                                        <button onClick={() => { setViewMode('ai'); sendQuickPrompt(`Can you summarize the maintenance intervals and key electrical requirements for this manual: ${selectedManual.name}?`); }} className="bg-purple-600 p-3 rounded-xl border border-purple-500 shadow-2xl active:scale-90 flex items-center justify-center ai-pulse-glow" title="AI Document Summary ✨"><Icons.Sparkles /></button>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex-1 flex flex-col items-center justify-center p-12 text-center opacity-40">
-                                    <Icons.BookOpen className="w-12 h-12 mb-4" />
-                                    <h2 className="text-xl font-black uppercase tracking-widest">Select Manual</h2>
+                                <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+                                    <div className="w-24 h-24 bg-white/5 rounded-3xl flex items-center justify-center mb-8 logo-shine border border-white/10 shadow-2xl p-4">
+                                        <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain opacity-60" />
+                                    </div>
+                                    <h2 className="text-2xl font-black text-white mb-3 tracking-[0.3em] uppercase opacity-90 leading-none">Repair Hub Pro</h2>
+                                    <p className="max-w-[280px] text-[11px] text-slate-600 font-bold uppercase tracking-widest mt-2 leading-relaxed text-center leading-relaxed">Technical library & AI diagnostics for Ellis Coffee technicians.</p>
+                                    {!isMenuOpen && <button onClick={() => setIsMenuOpen(true)} className="mt-10 bg-red-600 px-12 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest active:scale-95 shadow-xl">Browse Folders</button>}
                                 </div>
                             )}
                         </main>
 
-                        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 glass-panel flex items-center justify-around px-2 z-[60] safe-area-bottom">
-                            <button onClick={() => { setViewMode('manual'); setSelectedMachine(null); setIsMenuOpen(false); }} className={`flex flex-col items-center gap-1 flex-1 relative ${viewMode === 'manual' && !selectedMachine && !isMenuOpen ? 'bottom-nav-active' : 'text-slate-500'}`}><Icons.Home className="w-5 h-5" /><span className="text-[8px] font-black uppercase tracking-tighter">Home</span></button>
-                            <button onClick={() => { setViewMode('manual'); setIsMenuOpen(true); }} className={`flex flex-col items-center gap-1 flex-1 relative ${isMenuOpen ? 'bottom-nav-active' : 'text-slate-500'}`}><Icons.BookOpen className="w-5 h-5" /><span className="text-[8px] font-black uppercase tracking-tighter">Manuals</span></button>
-                            <button onClick={() => window.location.reload()} className="flex flex-col items-center gap-1 text-slate-500 flex-1"><Icons.RotateCw className="w-5 h-5" /><span className="text-[8px] font-black uppercase tracking-tighter">Sync</span></button>
-                            <button onClick={() => { setViewMode('ai'); setSelectedMachine(null); setIsMenuOpen(false); }} className={`flex flex-col items-center gap-1 flex-1 relative ${viewMode === 'ai' ? 'bottom-nav-active' : 'text-slate-500 text-purple-400/50'}`}><Icons.Sparkles className="w-5 h-5" /><span className="text-[8px] font-black uppercase tracking-tighter">AI Help</span></button>
+                        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 glass-panel flex items-center justify-around px-2 z-[60] safe-bottom">
+                            <button onClick={handleHome} className={`flex flex-col items-center gap-1 flex-1 relative ${viewMode === 'manual' && !selectedManual && !isMenuOpen ? 'bottom-nav-active' : 'text-slate-500'}`}><Icons.Home /><span className="text-[8px] font-black uppercase tracking-tighter text-center">Home</span></button>
+                            <button onClick={() => { setViewMode('manual'); setIsMenuOpen(true); }} className={`flex flex-col items-center gap-1 flex-1 relative ${isMenuOpen ? 'bottom-nav-active' : 'text-slate-500'}`}><Icons.Book /><span className="text-[8px] font-black uppercase tracking-tighter text-center">Manuals</span></button>
+                            <button onClick={fetchManuals} className="flex flex-col items-center gap-1 text-slate-500 flex-1 active:text-red-500"><Icons.Sync /><span className="text-[8px] font-black uppercase tracking-tighter text-center">Sync</span></button>
+                            <button onClick={() => { setViewMode('directory'); setSelectedManual(null); setIsMenuOpen(false); }} className={`flex flex-col items-center gap-1 flex-1 relative ${viewMode === 'directory' ? 'bottom-nav-active' : 'text-slate-500'}`}><Icons.Phone /><span className="text-[8px] font-black uppercase tracking-tighter text-center">Support</span></button>
+                            <button onClick={() => { setViewMode('ai'); setSelectedManual(null); setIsMenuOpen(false); }} className={`flex flex-col items-center gap-1 flex-1 relative ${viewMode === 'ai' ? 'bottom-nav-active' : 'text-slate-500 text-purple-500/70'}`}><Icons.Sparkles /><span className="text-[8px] font-black uppercase tracking-tighter text-center">AI Hub ✨</span></button>
                         </nav>
                     </div>
                 </div>
