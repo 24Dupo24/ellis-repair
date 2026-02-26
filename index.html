@@ -13,6 +13,7 @@
         
         :root { 
             --app-height: 100dvh; 
+            --header-height: 64px; /* Default height */
         }
         body, html { 
             height: var(--app-height);
@@ -25,14 +26,14 @@
         
         #root { height: 100%; display: flex; flex-direction: column; }
         
-        /* THE FREEZE FIX: Explicit scrolling container for the PDF */
-        .pdf-container {
+        /* Direct PDF Scrolling Fix */
+        .pdf-view-wrapper {
             flex: 1;
             width: 100%;
             height: 100%;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* Essential for mobile scrolling */
             position: relative;
+            background: #000;
+            overflow: hidden;
         }
 
         iframe { 
@@ -53,6 +54,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             position: relative;
             z-index: 100;
+            height: var(--header-height);
         }
 
         .nav-pill-active {
@@ -103,6 +105,12 @@
             padding: 1px 4px;
             border-radius: 3px;
             font-weight: 800;
+        }
+
+        /* Ensure sidebar doesn't hide behind header */
+        .app-sidebar {
+            top: var(--header-height);
+            height: calc(100% - var(--header-height));
         }
     </style>
 </head>
@@ -179,7 +187,7 @@
             const handleHome = () => { handleSetView('manual'); setIsMenuOpen(false); };
             const toggleBrand = (brandName) => { setExpandedBrands(prev => ({ ...prev, [brandName]: !prev[brandName] })); };
 
-            // --- BRAND COLORS ---
+            // --- BRAND ENGINE ---
             const getBrandInfo = (name) => {
                 const n = name.toUpperCase();
                 if (n.includes('BUNN')) return { label: 'BUNN', color: 'bg-red-500/10 text-red-400 border-red-500/20', icon: 'B' };
@@ -253,7 +261,7 @@
                 <div className="flex flex-col h-full bg-black text-white overflow-hidden selection:bg-red-600/40">
                     {/* FIXED INTEGRATED HEADER */}
                     <header className="glass-header z-50 shrink-0">
-                        <div className="flex justify-between items-center px-4 h-16 max-w-7xl mx-auto w-full">
+                        <div className="flex justify-between items-center px-4 h-full max-w-7xl mx-auto w-full">
                             <div className="flex items-center">
                                 <div className="h-7 cursor-pointer active:scale-95 transition-transform" onClick={handleHome}>
                                     <img src={LOGO_URL} alt="Ellis" className="h-full w-auto" />
@@ -286,8 +294,8 @@
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
-                        {/* Sidebar Menu - Clean alignment below header */}
-                        <aside className={`fixed lg:relative inset-y-0 left-0 z-40 bg-black/95 lg:bg-transparent backdrop-blur-3xl lg:backdrop-blur-none transition-all duration-400 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full lg:translate-x-0 lg:w-80 lg:opacity-100'} border-r border-white/5 flex flex-col pt-0`}>
+                        {/* Sidebar Menu - Fixed positioning relative to header */}
+                        <aside className={`fixed lg:relative app-sidebar inset-y-0 left-0 z-40 bg-black/95 lg:bg-transparent backdrop-blur-3xl lg:backdrop-blur-none transition-all duration-400 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full lg:translate-x-0 lg:w-80 lg:opacity-100'} border-r border-white/5 flex flex-col`}>
                             
                             {/* MASTER INVENTORY BUTTON - PINNED */}
                             <div className="p-4 border-b border-white/5 bg-black/40">
@@ -341,7 +349,7 @@
                             <div className="p-5 border-t border-white/5 flex items-center justify-between bg-black shrink-0">
                                 <div className="flex flex-col gap-1">
                                     <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest italic">© 2026</span>
-                                    <span className="text-[8px] font-black text-slate-700 uppercase tracking-[0.2em]">v1.0.1</span>
+                                    <span className="text-[8px] font-black text-slate-700 uppercase tracking-[0.2em]">v1.0.2</span>
                                 </div>
                                 <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 rounded-full border border-emerald-500/10">
                                     <div className="status-pulse"></div>
@@ -355,7 +363,7 @@
                             {viewMode === 'directory' ? (
                                 <div className="flex-1 overflow-y-auto p-4 lg:p-12 pb-32 custom-scrollbar">
                                     <div className="max-w-2xl mx-auto space-y-3">
-                                        <div className="flex items-center gap-4 mb-6 border-b border-white/5 pb-6">
+                                        <div className="flex items-center gap-4 mb-6 border-b border-white/5 pb-6 text-left">
                                             <div className="bg-red-600 p-4 rounded-2xl shadow-xl shadow-red-900/20 shrink-0"><Icons.Support /></div>
                                             <div>
                                                 <h2 className="text-2xl font-extrabold uppercase tracking-tight text-white leading-none">Engineering Support</h2>
@@ -377,9 +385,14 @@
                                 </div>
                             ) : selectedManual ? (
                                 <div className="flex-1 flex flex-col relative h-full">
-                                    {/* TOUCH OPTIMIZED SCROLLING CONTAINER */}
-                                    <div className="pdf-container">
-                                        <iframe key={selectedManual.id} src={`https://docs.google.com/viewer?url=${encodeURIComponent(selectedManual.url)}&embedded=true`} className="flex-1 w-full h-full" />
+                                    {/* NATIVE PDF CONTAINER - BYPASS GOOGLE VIEWER FOR SCROLL FIX */}
+                                    <div className="pdf-view-wrapper">
+                                        <iframe 
+                                            key={selectedManual.id} 
+                                            src={selectedManual.url} 
+                                            className="w-full h-full" 
+                                            title={selectedManual.name}
+                                        />
                                     </div>
                                     
                                     {/* Mobile Floating Back Button */}
