@@ -26,15 +26,13 @@
         
         #root { height: 100%; display: flex; flex-direction: column; }
         
-        /* THE MOBILE SCROLL FIX: Direct scrolling for the PDF container */
-        .pdf-viewer-container {
+        .pdf-view-wrapper {
             flex: 1;
             width: 100%;
             height: 100%;
             position: relative;
             background: #000;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch; 
+            overflow: hidden;
         }
 
         iframe { 
@@ -56,6 +54,8 @@
             position: relative;
             z-index: 100;
             height: var(--header-height);
+            display: flex;
+            align-items: center;
         }
 
         .nav-pill-active {
@@ -108,8 +108,9 @@
             font-weight: 800;
         }
 
-        .sidebar-fixed-position {
-            height: 100%;
+        /* Sidebar positioning fix */
+        .sidebar-container {
+            height: calc(100vh - var(--header-height));
             background: #000;
         }
     </style>
@@ -152,6 +153,7 @@
             const [expandedBrands, setExpandedBrands] = useState({}); 
             const [isLoading, setIsLoading] = useState(true);
 
+            // --- HISTORY PROTECTION ---
             useEffect(() => {
                 const handlePopState = (event) => {
                     if (selectedManual) {
@@ -165,10 +167,16 @@
             }, [selectedManual, viewMode]);
 
             const handleManualSelect = (m) => { 
-                window.history.pushState({ view: 'manual', manual: m.name }, "");
-                setSelectedManual(m); 
-                setViewMode('manual'); 
-                if (window.innerWidth < 1024) setIsMenuOpen(false); 
+                if (window.innerWidth < 1024) {
+                    // FORCE NATIVE MOBILE OPEN: No freezes, no in-between buttons.
+                    // Technician uses phone's back button/gesture to return to hub.
+                    window.location.href = m.url;
+                } else {
+                    window.history.pushState({ view: 'manual', manual: m.name }, "");
+                    setSelectedManual(m); 
+                    setViewMode('manual'); 
+                    setIsMenuOpen(false); 
+                }
             };
 
             const handleSetView = (view) => {
@@ -258,9 +266,9 @@
             return (
                 <div className="flex flex-col h-full bg-black text-white overflow-hidden selection:bg-red-600/40">
                     <header className="glass-header z-50 shrink-0">
-                        <div className="flex justify-between items-center px-4 h-full max-w-7xl mx-auto w-full">
+                        <div className="flex justify-between items-center px-4 w-full">
                             <div className="flex items-center">
-                                <div className="h-7 cursor-pointer active:scale-95 transition-transform" onClick={handleHome}>
+                                <div className="h-6 cursor-pointer active:scale-95 transition-transform" onClick={handleHome}>
                                     <img src={LOGO_URL} alt="Ellis" className="h-full w-auto" />
                                 </div>
                             </div>
@@ -290,7 +298,7 @@
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
-                        <aside className={`fixed lg:relative sidebar-fixed-position inset-y-0 left-0 z-40 bg-black/95 lg:bg-transparent backdrop-blur-3xl lg:backdrop-blur-none transition-all duration-400 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full lg:translate-x-0 lg:w-80 lg:opacity-100'} border-r border-white/5 flex flex-col`}>
+                        <aside className={`fixed lg:relative inset-y-0 left-0 z-40 bg-black/95 lg:bg-transparent backdrop-blur-3xl lg:backdrop-blur-none transition-all duration-400 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full lg:translate-x-0 lg:w-80 lg:opacity-100'} border-r border-white/5 flex flex-col sidebar-container`}>
                             
                             <div className="p-4 border-b border-white/5 bg-black/40">
                                 {masterManual ? (
@@ -342,7 +350,7 @@
                             <div className="p-5 border-t border-white/5 flex items-center justify-between bg-black shrink-0">
                                 <div className="flex flex-col gap-1">
                                     <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest italic">© 2026</span>
-                                    <span className="text-[8px] font-black text-slate-700 uppercase tracking-[0.2em]">v1.0.3</span>
+                                    <span className="text-[8px] font-black text-slate-700 uppercase tracking-[0.2em]">v1.0.4</span>
                                 </div>
                                 <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 rounded-full border border-emerald-500/10">
                                     <div className="status-pulse"></div>
@@ -377,10 +385,10 @@
                                 </div>
                             ) : selectedManual ? (
                                 <div className="flex-1 flex flex-col relative h-full">
-                                    <div className="pdf-viewer-container">
+                                    <div className="pdf-view-wrapper">
                                         <iframe 
                                             key={selectedManual.id} 
-                                            src={`https://docs.google.com/viewer?url=${encodeURIComponent(selectedManual.url)}&embedded=true`} 
+                                            src={selectedManual.url} 
                                             className="w-full h-full" 
                                             title={selectedManual.name}
                                         />
