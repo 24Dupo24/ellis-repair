@@ -24,28 +24,21 @@
         #root { height: 100%; display: flex; flex-direction: column; }
         iframe { background-color: #000000; border: none; width: 100%; height: 100%; }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 0px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         
-        .soft-glass {
-            background: rgba(15, 15, 15, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .active-tab {
-            background: rgba(220, 38, 38, 0.1);
+        .active-pill {
+            background: rgba(220, 38, 38, 0.15);
             color: #ef4444;
         }
 
         .sidebar-active-item {
             background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.25);
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.2);
         }
 
-        .nav-pill {
-            @apply flex flex-col items-center justify-center gap-1 rounded-2xl transition-all duration-300 active:scale-90 cursor-pointer;
+        .nav-stack {
+            @apply flex flex-col items-center justify-center gap-1 rounded-xl transition-all duration-300 active:scale-90 cursor-pointer shrink-0;
         }
 
         .status-pulse {
@@ -53,27 +46,35 @@
             background: #10b981;
             border-radius: 50%;
             display: inline-block;
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
-            animation: pulse-ring 2s infinite;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+            animation: pulse-ring 3s infinite;
         }
         @keyframes pulse-ring {
-            0% { transform: scale(0.8); opacity: 0.5; }
+            0%, 100% { transform: scale(0.8); opacity: 0.5; }
             50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(0.8); opacity: 0.5; }
         }
 
-        .hero-gradient {
-            background: radial-gradient(circle at center, rgba(220, 38, 38, 0.08) 0%, transparent 70%);
+        .hero-glow {
+            background: radial-gradient(circle at center, rgba(220, 38, 38, 0.05) 0%, transparent 70%);
         }
-
-        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
 
         .modern-label {
-            font-size: 9px;
-            font-weight: 700;
+            font-size: 8px;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            opacity: 0.6;
+            letter-spacing: 0.05em;
+            opacity: 0.7;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .brand-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 7px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: 800;
         }
     </style>
 </head>
@@ -89,22 +90,21 @@
         const LOGO_URL = `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/images/ellis-coffee-logo.png`; 
         const USER_EMAIL = "dupo24@gmail.com";
 
-        // Modern, Softer Icons
+        // Rounded Modern Icons
         const Icons = {
-            Home: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
-            Support: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 .8 2.81 2 2 0 0 1 22 16.92z"/></svg>,
-            Globe: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
-            Upload: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
-            Refresh: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>,
-            Book: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
-            Sparkle: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3 1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 1 1.275-1.275L12 3Z"/></svg>,
-            Search: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+            Home: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+            Support: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 .8 2.81 2 2 0 0 1 22 16.92z"/></svg>,
+            Globe: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+            Upload: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
+            Refresh: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>,
+            Sparkle: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3 1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 1 1.275-1.275L12 3Z"/></svg>,
+            Search: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
             Menu: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
             Close: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
             ChevronDown: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
             ChevronRight: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
             ChevronLeft: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
-            Star: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
+            Star: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
             External: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         };
 
@@ -118,13 +118,13 @@
             const [isLoading, setIsLoading] = useState(true);
 
             const handleHome = () => { setSelectedManual(null); setViewMode('manual'); setIsMenuOpen(false); };
-            const handleManualSelect = (m) => { setSelectedManual(m); setViewMode('manual'); if (window.innerWidth < 768) setIsMenuOpen(false); };
+            const handleManualSelect = (m) => { setSelectedManual(m); setViewMode('manual'); if (window.innerWidth < 1024) setIsMenuOpen(false); };
             const toggleBrand = (brandName) => { setExpandedBrands(prev => ({ ...prev, [brandName]: !prev[brandName] })); };
 
             const getBrandInfo = (name) => {
                 const n = name.toUpperCase();
                 if (n.includes('BUNN')) return { label: 'BUNN', color: 'bg-red-500/10 text-red-400 border-red-500/20', icon: 'B' };
-                if (n.includes('SIMONELLI')) return { label: 'SIMONELLI', color: 'bg-sky-500/10 text-sky-400 border-sky-500/20', icon: 'S' };
+                if (n.includes('SIMONELLI')) return { label: 'SIMONELLI', color: 'bg-blue-600/10 text-blue-400 border-blue-600/20', icon: 'S' };
                 if (n.includes('CURTIS')) return { label: 'CURTIS', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20', icon: 'C' };
                 if (n.includes('FETCO')) return { label: 'FETCO', color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20', icon: 'F' };
                 if (n.includes('NEWCO') || n.includes('BISTRO')) return { label: 'NEWCO', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', icon: 'N' };
@@ -133,14 +133,14 @@
                 if (n.includes('CORNELIUS')) return { label: 'CORNELIUS', color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20', icon: 'CO' };
                 if (n.includes('EVOCA')) return { label: 'EVOCA', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20', icon: 'E' };
                 if (n.includes('FLAVIA') || n.includes('LAVAZZA')) return { label: 'FLAVIA', color: 'bg-pink-500/10 text-pink-400 border-pink-500/20', icon: 'FL' };
-                return { label: 'TECHNICAL CORE', color: 'bg-slate-500/10 text-slate-400 border-slate-500/20', icon: 'T' };
+                return { label: 'TECHNICAL', color: 'bg-slate-500/10 text-slate-400 border-slate-500/20', icon: 'T' };
             };
 
             const fetchManuals = async () => {
                 setIsLoading(true);
                 try {
                     const res = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${BASE_PDF_PATH}`);
-                    if (!res.ok) throw new Error("Connection failed.");
+                    if (!res.ok) throw new Error("Sync failed.");
                     const data = await res.json();
                     const pdfs = data.filter(f => f.name.toLowerCase().endsWith('.pdf')).map(f => {
                         const rawName = f.name.replace('.pdf', '').replace(/_/g, ' ');
@@ -158,102 +158,111 @@
 
             useEffect(() => { fetchManuals(); }, []);
             const masterManual = useMemo(() => manuals.find(m => m.isMaster), [manuals]);
+            
+            const filteredManualsList = useMemo(() => {
+                return manuals.filter(m => !m.isMaster && m.name.toLowerCase().includes(searchQuery.toLowerCase()));
+            }, [manuals, searchQuery]);
+
             const groupedManuals = useMemo(() => {
                 const groups = {};
-                const filtered = manuals.filter(m => !m.isMaster && m.name.toLowerCase().includes(searchQuery.toLowerCase()));
-                filtered.forEach(m => {
+                filteredManualsList.forEach(m => {
                     const groupName = m.brand.label;
                     if (!groups[groupName]) groups[groupName] = [];
                     groups[groupName].push(m);
                 });
                 return Object.keys(groups).sort().map(name => ({ name, items: groups[name] }));
-            }, [manuals, searchQuery]);
+            }, [filteredManualsList]);
 
             const sendEmail = () => {
-                const subject = `[Technical Hub] ${selectedManual?.name || 'Manual Request'}`;
-                const body = `Documentation Reference:\n\nManual: ${selectedManual?.name || 'Technical Manual'}\nView: ${selectedManual?.url || 'https://24dupo24.github.io/ellis-repair/'}`;
+                const subject = `[Manual Request] ${selectedManual?.name || 'Document'}`;
+                const body = `Field Reference:\n\nManual: ${selectedManual?.name || 'Technical Manual'}\nLink: ${selectedManual?.url || 'https://24dupo24.github.io/ellis-repair/'}`;
                 window.location.href = `mailto:${USER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             };
 
             const techSupport = [
-                { name: "Grindmaster Technical", phone: "1-800-695-4500", brand: "GRINDMASTER" },
+                { name: "Grindmaster Tech Support", phone: "1-800-695-4500", brand: "GRINDMASTER" },
                 { name: "Bunn Technical Service", phone: "1-800-637-8606", brand: "BUNN" },
                 { name: "Curtis Technical Support", phone: "1-800-421-6150", brand: "CURTIS" },
                 { name: "Lavazza / Flavia Support", phone: "1-877-273-5812", brand: "FLAVIA" },
                 { name: "Fetco Manufacturing", phone: "1-800-338-2699", brand: "FETCO" },
                 { name: "Gulf Ice / Cornelius", phone: "1-800-322-4853", brand: "CORNELIUS" },
-                { name: "Nespresso Technical", phone: "1-800-566-0571", brand: "TECHNICAL CORE" },
+                { name: "Nespresso Technical", phone: "1-800-566-0571", brand: "TECHNICAL" },
                 { name: "Newco Support Center", phone: "1-800-325-7867", brand: "NEWCO" },
-                { name: "Royal Cup Support", phone: "1-800-366-5836", brand: "TECHNICAL CORE" },
-                { name: "Parts Town Support", phone: "1-800-438-8898", brand: "TECHNICAL CORE" },
-                { name: "Nuova Simonelli Engineering", phone: "360-366-2226", brand: "SIMONELLI" }
+                { name: "Royal Cup Support", phone: "1-800-366-5836", brand: "TECHNICAL" },
+                { name: "Parts Town Help Line", phone: "1-800-438-8898", brand: "TECHNICAL" },
+                { name: "Nuova Simonelli Support", phone: "360-366-2226", brand: "SIMONELLI" }
             ];
 
             return (
-                <div className="flex flex-col h-full bg-black text-white overflow-hidden selection:bg-red-500/30">
-                    <header className="bg-black/80 backdrop-blur-xl border-b border-white/5 px-4 h-16 flex justify-between items-center z-50 shrink-0">
-                        <div className="flex items-center gap-8">
-                            <div className="h-8 cursor-pointer active:scale-95 transition-transform" onClick={handleHome}>
+                <div className="flex flex-col h-full bg-black text-white overflow-hidden selection:bg-red-600/40">
+                    {/* Integrated Top Dock Header */}
+                    <header className="bg-black/90 backdrop-blur-2xl border-b border-white/5 flex flex-col z-50 shrink-0">
+                        <div className="flex justify-between items-center px-4 h-14">
+                            <div className="h-6 cursor-pointer active:scale-95 transition-transform" onClick={handleHome}>
                                 <img src={LOGO_URL} alt="Ellis" className="h-full w-auto" />
                             </div>
-                            
-                            <div className="hidden lg:flex items-center gap-1.5 p-1 bg-white/5 rounded-2xl">
-                                <button onClick={handleHome} className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all ${viewMode === 'manual' && !selectedManual ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-white'}`}>
-                                    <Icons.Home /><span className="text-xs font-bold uppercase tracking-wide">Home</span>
-                                </button>
-                                <button onClick={() => setViewMode('directory')} className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all ${viewMode === 'directory' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-white'}`}>
-                                    <Icons.Support /><span className="text-xs font-bold uppercase tracking-wide">Support</span>
-                                </button>
-                                <button onClick={() => window.open('https://elliscoffee.com', '_blank')} className="px-4 py-2 rounded-xl flex items-center gap-2 text-slate-500 hover:text-white transition-all">
-                                    <Icons.Globe /><span className="text-xs font-bold uppercase tracking-wide">Ellis</span>
-                                </button>
-                                <button onClick={sendEmail} className="px-4 py-2 rounded-xl flex items-center gap-2 text-slate-500 hover:text-white transition-all">
-                                    <Icons.Upload /><span className="text-xs font-bold uppercase tracking-wide">Upload</span>
-                                </button>
-                                <button onClick={() => window.open('https://gemini.google.com', '_blank')} className="px-4 py-2 rounded-xl flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-all">
-                                    <Icons.Sparkle /><span className="text-xs font-bold uppercase tracking-wide">AI Hub</span>
-                                </button>
-                                <button onClick={fetchManuals} className="p-2 text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all"><Icons.Refresh /></button>
-                            </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2.5 text-slate-400 hover:text-white transition-all bg-white/5 rounded-xl border border-white/5">
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-400 hover:text-white transition-all bg-white/5 rounded-xl border border-white/5">
                                 {isMenuOpen ? <Icons.Close /> : <Icons.Menu />}
                             </button>
+                        </div>
+
+                        {/* Centered Desktop & Mobile Action Bar */}
+                        <div className="px-3 pb-3">
+                            <div className="flex items-center gap-1 p-1 bg-white/5 rounded-2xl overflow-x-auto no-scrollbar justify-start lg:justify-center">
+                                <button onClick={handleHome} className={`nav-stack px-4 py-2 ${viewMode === 'manual' && !selectedManual ? 'active-pill' : 'text-slate-500 hover:text-white'}`}>
+                                    <Icons.Home /><span className="modern-label">Home</span>
+                                </button>
+                                <button onClick={() => setViewMode('directory')} className={`nav-stack px-4 py-2 ${viewMode === 'directory' ? 'active-pill' : 'text-slate-500 hover:text-white'}`}>
+                                    <Icons.Support /><span className="modern-label">Support</span>
+                                </button>
+                                <button onClick={() => window.open('https://elliscoffee.com', '_blank')} className="nav-stack px-4 py-2 text-slate-500 hover:text-white">
+                                    <Icons.Globe /><span className="modern-label">Ellis</span>
+                                </button>
+                                <button onClick={sendEmail} className="nav-stack px-4 py-2 text-slate-500 hover:text-white">
+                                    <Icons.Upload /><span className="modern-label">Upload</span>
+                                </button>
+                                <button onClick={() => window.open('https://gemini.google.com', '_blank')} className="nav-stack px-4 py-2 text-purple-400 hover:text-purple-300">
+                                    <Icons.Sparkle /><span className="modern-label">AI Hub</span>
+                                </button>
+                                <button onClick={fetchManuals} className="p-2 text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all shrink-0"><Icons.Refresh /></button>
+                            </div>
                         </div>
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
-                        <aside className={`fixed inset-0 z-40 bg-black/95 backdrop-blur-2xl lg:backdrop-blur-none transition-all duration-400 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full lg:translate-x-0 lg:w-80 lg:opacity-100'} border-r border-white/5 flex flex-col`}>
+                        {/* Sidebar Menu */}
+                        <aside className={`fixed inset-0 z-40 bg-black/95 backdrop-blur-3xl lg:backdrop-blur-none transition-all duration-400 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full lg:translate-x-0 lg:w-80 lg:opacity-100'} border-r border-white/5 flex flex-col`}>
                             
+                            {/* SLIM MASTER BUTTON */}
                             <div className="p-4 border-b border-white/5">
                                 {masterManual ? (
                                     <button 
                                         onClick={() => handleManualSelect(masterManual)}
-                                        className={`w-full py-2.5 px-4 rounded-2xl flex items-center justify-between transition-all active:scale-95 ${selectedManual?.id === masterManual.id ? 'sidebar-active-item' : 'bg-white/5 border border-white/5 hover:bg-white/10'}`}
+                                        className={`w-full py-2.5 px-4 rounded-xl flex items-center justify-between transition-all active:scale-95 ${selectedManual?.id === masterManual.id ? 'sidebar-active-item' : 'bg-white/5 border border-white/5 hover:bg-white/10'}`}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className={`${selectedManual?.id === masterManual.id ? 'bg-white/20' : 'bg-red-500/20 text-red-500'} p-1.5 rounded-lg`}><Icons.Star /></div>
+                                            <div className={`${selectedManual?.id === masterManual.id ? 'bg-white/20' : 'bg-red-600/20 text-red-600'} p-1.5 rounded-lg`}><Icons.Star /></div>
                                             <span className="text-xs font-bold uppercase tracking-tight text-left">Ellis Parts List</span>
                                         </div>
                                         <div className="status-pulse bg-white/40"></div>
                                     </button>
                                 ) : (
-                                    <div className="h-11 rounded-2xl bg-white/5 animate-pulse"></div>
+                                    <div className="h-11 rounded-xl bg-white/5 animate-pulse"></div>
                                 )}
                             </div>
 
+                            {/* SEARCH */}
                             <div className="p-4 border-b border-white/5">
                                 <div className="relative">
                                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"><Icons.Search /></div>
-                                    <input type="text" placeholder="Search technical library..." className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-red-600 outline-none placeholder:text-slate-700 transition-all focus:bg-white/[0.08]" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                                    <input type="text" placeholder="Filter manuals..." className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-red-600 outline-none placeholder:text-slate-700 transition-all focus:bg-white/[0.08]" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                                 </div>
                             </div>
 
+                            {/* MANUAL CATEGORIES */}
                             <div className="flex-1 overflow-y-auto px-3 pb-32 custom-scrollbar mt-2">
                                 {isLoading ? (
-                                    <div className="p-10 text-center text-slate-600 animate-pulse text-xs font-bold uppercase tracking-widest">Initialising...</div>
+                                    <div className="p-10 text-center text-slate-600 animate-pulse text-xs font-bold uppercase tracking-widest">Initialising Library...</div>
                                 ) : groupedManuals.map(group => (
                                     <div key={group.name} className="mb-4">
                                         <button onClick={() => toggleBrand(group.name)} className="w-full flex items-center justify-between px-3 py-2 group">
@@ -263,9 +272,9 @@
                                         {(expandedBrands[group.name] || searchQuery.length > 0) && (
                                             <div className="mt-1 space-y-1">
                                                 {group.items.map(m => (
-                                                    <button key={m.id} onClick={() => handleManualSelect(m)} className={`w-full text-left p-3.5 rounded-xl flex items-center gap-3 transition-all ${selectedManual?.id === m.id ? 'sidebar-active-item' : 'hover:bg-white/5 text-slate-400 hover:text-white'}`}>
-                                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0 ${selectedManual?.id === m.id ? 'bg-white/20 text-white' : m.brand.color}`}>{m.brand.icon}</div>
-                                                        <span className="text-xs font-semibold truncate uppercase tracking-tight">{m.name}</span>
+                                                    <button key={m.id} onClick={() => handleManualSelect(m)} className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all ${selectedManual?.id === m.id ? 'sidebar-active-item' : 'hover:bg-white/5 text-slate-400 hover:text-white'}`}>
+                                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[9px] font-black shrink-0 ${selectedManual?.id === m.id ? 'bg-white/20 text-white' : m.brand.color}`}>{m.brand.icon}</div>
+                                                        <span className="text-[13px] font-semibold truncate uppercase tracking-tight">{m.name}</span>
                                                     </button>
                                                 ))}
                                             </div>
@@ -283,34 +292,35 @@
                             </div>
                         </aside>
 
-                        <main className="flex-1 bg-black relative flex flex-col overflow-hidden hero-gradient">
+                        {/* Main Interaction Hub */}
+                        <main className="flex-1 bg-black relative flex flex-col overflow-hidden hero-glow">
                             {viewMode === 'directory' ? (
                                 <div className="flex-1 overflow-y-auto p-4 lg:p-12 pb-32 custom-scrollbar">
                                     <div className="max-w-2xl mx-auto space-y-3">
-                                        <div className="flex items-center gap-4 mb-8 border-b border-white/5 pb-8">
+                                        <div className="flex items-center gap-4 mb-6 border-b border-white/5 pb-6">
                                             <div className="bg-red-600 p-4 rounded-2xl shadow-xl shadow-red-900/20 shrink-0"><Icons.Support /></div>
                                             <div>
-                                                <h2 className="text-2xl lg:text-3xl font-extrabold uppercase tracking-tight">Support Lines</h2>
-                                                <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Direct manufacturer engineering</p>
+                                                <h2 className="text-2xl font-extrabold uppercase tracking-tight text-white leading-none">Engineering</h2>
+                                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2">Support Directory</p>
                                             </div>
                                         </div>
                                         {techSupport.map((contact, idx) => (
                                             <div key={idx} className="bg-white/[0.03] border border-white/5 p-4 rounded-2xl flex items-center justify-between hover:bg-white/[0.06] transition-all group">
                                                 <div className="min-w-0 pr-4">
-                                                    <span className={`text-[8px] font-bold px-2 py-0.5 rounded border uppercase ${getBrandInfo(contact.brand).color}`}>{contact.brand}</span>
-                                                    <h4 className="text-sm lg:text-base font-bold mt-2 text-slate-200 group-hover:text-white transition-colors truncate">{contact.name}</h4>
+                                                    <span className={`brand-badge border uppercase ${getBrandInfo(contact.brand).color}`}>{contact.brand}</span>
+                                                    <h4 className="text-sm font-bold mt-2 text-slate-200 group-hover:text-white transition-colors truncate">{contact.name}</h4>
                                                 </div>
-                                                <a href={`tel:${contact.phone}`} className="bg-red-600 hover:bg-red-500 px-4 lg:px-6 py-2.5 rounded-xl font-bold text-[11px] transition-all flex items-center gap-2 shrink-0 active:scale-90">
-                                                    <Icons.Support /> <span className="hidden sm:inline uppercase">Call</span>
+                                                <a href={`tel:${contact.phone}`} className="bg-red-600 hover:bg-red-500 px-5 py-2.5 rounded-xl font-black text-[11px] transition-all flex items-center gap-2 shrink-0 active:scale-90 uppercase shadow-lg shadow-red-900/10">
+                                                    <Icons.Support /> <span className="hidden sm:inline">Call</span>
                                                 </a>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             ) : selectedManual ? (
-                                <div className="flex-1 flex flex-col relative">
-                                    <iframe key={selectedManual.id} src={`https://docs.google.com/viewer?url=${encodeURIComponent(selectedManual.url)}&embedded=true`} className="flex-1" />
-                                    <button onClick={() => setSelectedManual(null)} className="lg:hidden absolute top-4 left-4 z-50 bg-red-600 w-12 h-12 rounded-full flex items-center justify-center shadow-2xl shadow-black active:scale-90 border border-white/10"><Icons.ChevronLeft /></button>
+                                <div className="flex-1 flex flex-col relative h-full">
+                                    <iframe key={selectedManual.id} src={`https://docs.google.com/viewer?url=${encodeURIComponent(selectedManual.url)}&embedded=true`} className="flex-1 w-full" />
+                                    <button onClick={() => setSelectedManual(null)} className="lg:hidden absolute top-4 left-4 z-50 bg-red-600 w-11 h-11 rounded-full flex items-center justify-center shadow-2xl shadow-black active:scale-90 border border-white/10"><Icons.ChevronLeft /></button>
                                     <div className="absolute top-4 right-4">
                                         <a href={selectedManual.url} target="_blank" className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-2xl active:scale-90 flex items-center justify-center hover:bg-white/20 transition-all"><Icons.External /></a>
                                     </div>
@@ -318,43 +328,24 @@
                             ) : (
                                 <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
                                     <div className="w-full max-w-[calc(100vw-48px)] lg:max-w-md mx-auto">
-                                        <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mb-8 mx-auto border border-white/10 shadow-2xl">
-                                            <img src={LOGO_URL} alt="Ellis" className="w-12 h-12 object-contain opacity-60" />
+                                        <div className="w-24 h-24 bg-white/5 rounded-[2.5rem] flex items-center justify-center mb-8 mx-auto border border-white/10 shadow-2xl">
+                                            <img src={LOGO_URL} alt="Ellis" className="w-14 h-14 object-contain opacity-70" />
                                         </div>
-                                        <h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-4 tracking-tight uppercase leading-none break-words">Ellis Technician <span className="text-red-600">Hub</span></h2>
-                                        <p className="text-xs lg:text-sm text-slate-500 font-semibold uppercase tracking-[0.2em] mb-12">Ellis Coffee Technical Manuals</p>
+                                        <h2 className="text-3xl lg:text-5xl font-black text-white mb-4 tracking-tighter uppercase leading-none break-words">Ellis Technician <span className="text-red-600">Hub</span></h2>
+                                        <p className="text-[11px] lg:text-xs text-slate-500 font-extrabold uppercase tracking-[0.3em] mb-12">Ellis Coffee Technical Manuals</p>
                                         
                                         {!isMenuOpen && (
                                             <button 
                                                 onClick={() => setIsMenuOpen(true)} 
-                                                className="lg:hidden w-full bg-red-600 px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-2xl shadow-red-950/40 active:scale-95 transition-all border border-white/10"
+                                                className="lg:hidden w-full bg-red-600 px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-red-950/40 active:scale-95 transition-all border border-white/10"
                                             >
-                                                Explore Library
+                                                Access Library
                                             </button>
                                         )}
                                     </div>
                                 </div>
                             )}
                         </main>
-
-                        <nav className="lg:hidden fixed bottom-4 left-4 right-4 h-20 soft-glass rounded-[2rem] flex items-center justify-around px-2 z-[60] safe-bottom shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
-                            <button onClick={handleHome} className={`nav-pill flex-1 py-3 ${viewMode === 'manual' && !selectedManual && !isMenuOpen ? 'text-red-500' : 'text-slate-500'}`}>
-                                <Icons.Home />
-                                <span className="modern-label">Base</span>
-                            </button>
-                            <button onClick={() => { setViewMode('manual'); setIsMenuOpen(true); }} className={`nav-pill flex-1 py-3 ${isMenuOpen ? 'text-red-500' : 'text-slate-500'}`}>
-                                <Icons.Book />
-                                <span className="modern-label">Library</span>
-                            </button>
-                            <button onClick={() => { setViewMode('directory'); setSelectedManual(null); setIsMenuOpen(false); }} className={`nav-pill flex-1 py-3 ${viewMode === 'directory' ? 'text-red-500' : 'text-slate-500'}`}>
-                                <Icons.Support />
-                                <span className="modern-label">Support</span>
-                            </button>
-                            <button onClick={() => window.open('https://gemini.google.com', '_blank')} className="nav-pill flex-1 py-3 text-purple-400 hover:text-purple-300">
-                                <Icons.Sparkle />
-                                <span className="modern-label">AI Hub</span>
-                            </button>
-                        </nav>
                     </div>
                 </div>
             );
