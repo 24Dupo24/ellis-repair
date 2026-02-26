@@ -247,6 +247,7 @@
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
+                        {/* Sidebar */}
                         <aside className={`fixed inset-0 z-40 bg-black transition-transform duration-300 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full md:relative md:translate-x-0 md:w-80'} border-r border-white/5 flex flex-col`}>
                             
                             <div className="p-4 bg-[#080808] border-b border-white/5">
@@ -269,7 +270,7 @@
                             <div className="p-4 bg-[#080808] border-b border-white/5">
                                 <div className="relative group">
                                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-700 group-focus-within:text-red-600 transition-colors"><Icons.Search /></div>
-                                    <input type="text" placeholder="Scan technical library..." className="w-full bg-white/[0.02] border border-white/10 rounded-xl py-3 pl-11 pr-4 text-xs focus:ring-1 focus:ring-red-600 outline-none placeholder:text-slate-800 tech-label text-left opacity-100" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                                    <input type="text" placeholder="Search technical library..." className="w-full bg-white/[0.02] border border-white/10 rounded-xl py-3 pl-11 pr-4 text-xs focus:ring-1 focus:ring-red-600 outline-none placeholder:text-slate-800 tech-label text-left opacity-100" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                                 </div>
                             </div>
 
@@ -279,10 +280,10 @@
                                 ) : groupedManuals.map(group => (
                                     <div key={group.name} className="mb-4 px-1">
                                         <button onClick={() => toggleBrand(group.name)} className="w-full flex items-center justify-between px-3 py-1.5 text-[9px] font-black tracking-[0.25em] text-slate-600 uppercase hover:text-slate-400 transition-colors">
-                                            <div className="flex items-center gap-2.5"><Icons.Folder className={expandedBrands[group.name] ? 'text-red-700' : 'text-slate-800'} /><span>{group.name}</span></div>
-                                            {expandedBrands[group.name] ? <Icons.ChevronDown /> : <Icons.ChevronRight />}
+                                            <div className="flex items-center gap-2.5"><Icons.Folder className={(expandedBrands[group.name] || searchQuery.length > 0) ? 'text-red-700' : 'text-slate-800'} /><span>{group.name}</span></div>
+                                            {(expandedBrands[group.name] || searchQuery.length > 0) ? <Icons.ChevronDown /> : <Icons.ChevronRight />}
                                         </button>
-                                        {expandedBrands[group.name] && (
+                                        {(expandedBrands[group.name] || searchQuery.length > 0) && (
                                             <div className="mt-2 space-y-1 ml-2">
                                                 {group.items.map(m => (
                                                     <button key={m.id} onClick={() => { handleManualSelect(m); }} className={`w-full text-left p-3.5 rounded-xl flex items-center justify-between group transition-all ${selectedManual?.id === m.id ? 'sidebar-item-active' : 'hover:bg-white/[0.03]'}`}>
