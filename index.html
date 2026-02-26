@@ -27,9 +27,17 @@
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 0px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         
-        .active-pill {
+        .glass-header {
+            background: rgba(12, 12, 12, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-pill-active {
             background: rgba(220, 38, 38, 0.15);
             color: #ef4444;
+            box-shadow: inset 0 0 0 1px rgba(220, 38, 38, 0.2);
         }
 
         .sidebar-active-item {
@@ -37,8 +45,8 @@
             box-shadow: 0 8px 20px rgba(220, 38, 38, 0.2);
         }
 
-        .nav-stack {
-            @apply flex flex-col items-center justify-center gap-1 rounded-xl transition-all duration-300 active:scale-90 cursor-pointer shrink-0;
+        .command-btn {
+            @apply flex items-center justify-center gap-2 rounded-xl transition-all duration-300 active:scale-90 cursor-pointer shrink-0;
         }
 
         .status-pulse {
@@ -58,12 +66,11 @@
             background: radial-gradient(circle at center, rgba(220, 38, 38, 0.05) 0%, transparent 70%);
         }
 
-        .modern-label {
+        .tech-pill-label {
             font-size: 8px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            opacity: 0.7;
+            letter-spacing: 0.06em;
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -90,22 +97,21 @@
         const LOGO_URL = `https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/images/ellis-coffee-logo.png`; 
         const USER_EMAIL = "dupo24@gmail.com";
 
-        // Rounded Modern Icons
         const Icons = {
-            Home: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
-            Support: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 .8 2.81 2 2 0 0 1 22 16.92z"/></svg>,
-            Globe: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
-            Upload: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
-            Refresh: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>,
-            Sparkle: () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3 1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 1 1.275-1.275L12 3Z"/></svg>,
-            Search: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+            Home: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+            Support: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 .8 2.81 2 2 0 0 1 22 16.92z"/></svg>,
+            Globe: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+            Upload: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
+            Refresh: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>,
+            Sparkle: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3 1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 1 1.275-1.275L12 3Z"/></svg>,
+            Search: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
             Menu: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
             Close: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
             ChevronDown: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
             ChevronRight: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
             ChevronLeft: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
             Star: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
-            External: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            External: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         };
 
         const App = () => {
@@ -117,8 +123,32 @@
             const [expandedBrands, setExpandedBrands] = useState({}); 
             const [isLoading, setIsLoading] = useState(true);
 
+            // --- NAVIGATION PROTECTION ---
+            useEffect(() => {
+                const handlePopState = (event) => {
+                    if (selectedManual) {
+                        setSelectedManual(null);
+                    } else if (viewMode === 'directory') {
+                        setViewMode('manual');
+                    }
+                };
+                window.addEventListener('popstate', handlePopState);
+                return () => window.removeEventListener('popstate', handlePopState);
+            }, [selectedManual, viewMode]);
+
+            const handleManualSelect = (m) => { 
+                window.history.pushState({ view: 'manual' }, "");
+                setSelectedManual(m); 
+                setViewMode('manual'); 
+                if (window.innerWidth < 1024) setIsMenuOpen(false); 
+            };
+
+            const handleCloseManual = () => {
+                if (window.history.state) window.history.back();
+                else setSelectedManual(null);
+            };
+
             const handleHome = () => { setSelectedManual(null); setViewMode('manual'); setIsMenuOpen(false); };
-            const handleManualSelect = (m) => { setSelectedManual(m); setViewMode('manual'); if (window.innerWidth < 1024) setIsMenuOpen(false); };
             const toggleBrand = (brandName) => { setExpandedBrands(prev => ({ ...prev, [brandName]: !prev[brandName] })); };
 
             const getBrandInfo = (name) => {
@@ -140,7 +170,7 @@
                 setIsLoading(true);
                 try {
                     const res = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${BASE_PDF_PATH}`);
-                    if (!res.ok) throw new Error("Sync failed.");
+                    if (!res.ok) throw new Error("Sync failure.");
                     const data = await res.json();
                     const pdfs = data.filter(f => f.name.toLowerCase().endsWith('.pdf')).map(f => {
                         const rawName = f.name.replace('.pdf', '').replace(/_/g, ' ');
@@ -159,19 +189,16 @@
             useEffect(() => { fetchManuals(); }, []);
             const masterManual = useMemo(() => manuals.find(m => m.isMaster), [manuals]);
             
-            const filteredManualsList = useMemo(() => {
-                return manuals.filter(m => !m.isMaster && m.name.toLowerCase().includes(searchQuery.toLowerCase()));
-            }, [manuals, searchQuery]);
-
             const groupedManuals = useMemo(() => {
                 const groups = {};
-                filteredManualsList.forEach(m => {
+                const filtered = manuals.filter(m => !m.isMaster && m.name.toLowerCase().includes(searchQuery.toLowerCase()));
+                filtered.forEach(m => {
                     const groupName = m.brand.label;
                     if (!groups[groupName]) groups[groupName] = [];
                     groups[groupName].push(m);
                 });
                 return Object.keys(groups).sort().map(name => ({ name, items: groups[name] }));
-            }, [filteredManualsList]);
+            }, [manuals, searchQuery]);
 
             const sendEmail = () => {
                 const subject = `[Manual Request] ${selectedManual?.name || 'Document'}`;
@@ -195,46 +222,43 @@
 
             return (
                 <div className="flex flex-col h-full bg-black text-white overflow-hidden selection:bg-red-600/40">
-                    {/* Integrated Top Dock Header */}
-                    <header className="bg-black/90 backdrop-blur-2xl border-b border-white/5 flex flex-col z-50 shrink-0">
-                        <div className="flex justify-between items-center px-4 h-14">
-                            <div className="h-6 cursor-pointer active:scale-95 transition-transform" onClick={handleHome}>
-                                <img src={LOGO_URL} alt="Ellis" className="h-full w-auto" />
+                    {/* FIXED INTEGRATED HEADER */}
+                    <header className="glass-header z-50 shrink-0">
+                        <div className="flex justify-between items-center px-4 h-16 max-w-7xl mx-auto w-full">
+                            <div className="flex items-center">
+                                <div className="h-7 cursor-pointer active:scale-95 transition-transform" onClick={handleHome}>
+                                    <img src={LOGO_URL} alt="Ellis" className="h-full w-auto" />
+                                </div>
                             </div>
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-slate-400 hover:text-white transition-all bg-white/5 rounded-xl border border-white/5">
-                                {isMenuOpen ? <Icons.Close /> : <Icons.Menu />}
-                            </button>
-                        </div>
-
-                        {/* Centered Desktop & Mobile Action Bar */}
-                        <div className="px-3 pb-3">
-                            <div className="flex items-center gap-1 p-1 bg-white/5 rounded-2xl overflow-x-auto no-scrollbar justify-start lg:justify-center">
-                                <button onClick={handleHome} className={`nav-stack px-4 py-2 ${viewMode === 'manual' && !selectedManual ? 'active-pill' : 'text-slate-500 hover:text-white'}`}>
-                                    <Icons.Home /><span className="modern-label">Home</span>
+                            
+                            {/* Command Center Toolbar */}
+                            <div className="flex items-center bg-white/5 rounded-2xl p-1 gap-1">
+                                <button onClick={handleHome} className={`command-btn px-3 py-2 ${viewMode === 'manual' && !selectedManual ? 'nav-pill-active' : 'text-slate-400 hover:text-white'}`} title="Home">
+                                    <Icons.Home />
                                 </button>
-                                <button onClick={() => setViewMode('directory')} className={`nav-stack px-4 py-2 ${viewMode === 'directory' ? 'active-pill' : 'text-slate-500 hover:text-white'}`}>
-                                    <Icons.Support /><span className="modern-label">Support</span>
+                                <button onClick={() => { setViewMode('directory'); setSelectedManual(null); }} className={`command-btn px-3 py-2 ${viewMode === 'directory' ? 'nav-pill-active' : 'text-slate-400 hover:text-white'}`} title="Support">
+                                    <Icons.Support />
                                 </button>
-                                <button onClick={() => window.open('https://elliscoffee.com', '_blank')} className="nav-stack px-4 py-2 text-slate-500 hover:text-white">
-                                    <Icons.Globe /><span className="modern-label">Ellis</span>
+                                <button onClick={() => window.open('https://elliscoffee.com', '_blank')} className="command-btn px-3 py-2 text-slate-400 hover:text-white" title="Ellis Website">
+                                    <Icons.Globe />
                                 </button>
-                                <button onClick={sendEmail} className="nav-stack px-4 py-2 text-slate-500 hover:text-white">
-                                    <Icons.Upload /><span className="modern-label">Upload</span>
+                                <button onClick={() => window.open('https://gemini.google.com', '_blank')} className="command-btn px-3 py-2 text-purple-400 hover:text-purple-300" title="AI Assistant">
+                                    <Icons.Sparkle />
                                 </button>
-                                <button onClick={() => window.open('https://gemini.google.com', '_blank')} className="nav-stack px-4 py-2 text-purple-400 hover:text-purple-300">
-                                    <Icons.Sparkle /><span className="modern-label">AI Hub</span>
+                                <div className="w-[1px] h-4 bg-white/10 mx-1"></div>
+                                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="command-btn p-2 text-slate-300 hover:text-white">
+                                    {isMenuOpen ? <Icons.Close /> : <Icons.Menu />}
                                 </button>
-                                <button onClick={fetchManuals} className="p-2 text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all shrink-0"><Icons.Refresh /></button>
                             </div>
                         </div>
                     </header>
 
                     <div className="flex flex-1 overflow-hidden relative">
-                        {/* Sidebar Menu */}
-                        <aside className={`fixed inset-0 z-40 bg-black/95 backdrop-blur-3xl lg:backdrop-blur-none transition-all duration-400 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full lg:translate-x-0 lg:w-80 lg:opacity-100'} border-r border-white/5 flex flex-col`}>
+                        {/* Sidebar Menu - Fixed positioning relative to header */}
+                        <aside className={`fixed inset-y-0 left-0 z-40 bg-black/95 backdrop-blur-3xl lg:backdrop-blur-none transition-all duration-400 transform ${isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full lg:translate-x-0 lg:w-80 lg:opacity-100'} border-r border-white/5 flex flex-col pt-0`}>
                             
-                            {/* SLIM MASTER BUTTON */}
-                            <div className="p-4 border-b border-white/5">
+                            {/* SLIM MASTER BUTTON - Pinned at Top of Sidebar */}
+                            <div className="p-4 border-b border-white/5 bg-black/40">
                                 {masterManual ? (
                                     <button 
                                         onClick={() => handleManualSelect(masterManual)}
@@ -255,7 +279,7 @@
                             <div className="p-4 border-b border-white/5">
                                 <div className="relative">
                                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"><Icons.Search /></div>
-                                    <input type="text" placeholder="Filter manuals..." className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-red-600 outline-none placeholder:text-slate-700 transition-all focus:bg-white/[0.08]" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                                    <input type="text" placeholder="Filter technical library..." className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm focus:ring-1 focus:ring-red-600 outline-none placeholder:text-slate-700 transition-all focus:bg-white/[0.08]" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                                 </div>
                             </div>
 
@@ -283,6 +307,7 @@
                                 ))}
                             </div>
 
+                            {/* SIDEBAR FOOTER */}
                             <div className="p-5 border-t border-white/5 flex items-center justify-between bg-black shrink-0">
                                 <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest italic">© 2026</span>
                                 <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/5 rounded-full border border-emerald-500/10">
@@ -292,7 +317,7 @@
                             </div>
                         </aside>
 
-                        {/* Main Interaction Hub */}
+                        {/* Main Interaction Hub Area */}
                         <main className="flex-1 bg-black relative flex flex-col overflow-hidden hero-glow">
                             {viewMode === 'directory' ? (
                                 <div className="flex-1 overflow-y-auto p-4 lg:p-12 pb-32 custom-scrollbar">
@@ -306,7 +331,7 @@
                                         </div>
                                         {techSupport.map((contact, idx) => (
                                             <div key={idx} className="bg-white/[0.03] border border-white/5 p-4 rounded-2xl flex items-center justify-between hover:bg-white/[0.06] transition-all group">
-                                                <div className="min-w-0 pr-4">
+                                                <div className="min-w-0 pr-4 text-left">
                                                     <span className={`brand-badge border uppercase ${getBrandInfo(contact.brand).color}`}>{contact.brand}</span>
                                                     <h4 className="text-sm font-bold mt-2 text-slate-200 group-hover:text-white transition-colors truncate">{contact.name}</h4>
                                                 </div>
@@ -320,9 +345,19 @@
                             ) : selectedManual ? (
                                 <div className="flex-1 flex flex-col relative h-full">
                                     <iframe key={selectedManual.id} src={`https://docs.google.com/viewer?url=${encodeURIComponent(selectedManual.url)}&embedded=true`} className="flex-1 w-full" />
-                                    <button onClick={() => setSelectedManual(null)} className="lg:hidden absolute top-4 left-4 z-50 bg-red-600 w-11 h-11 rounded-full flex items-center justify-center shadow-2xl shadow-black active:scale-90 border border-white/10"><Icons.ChevronLeft /></button>
-                                    <div className="absolute top-4 right-4">
-                                        <a href={selectedManual.url} target="_blank" className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-2xl active:scale-90 flex items-center justify-center hover:bg-white/20 transition-all"><Icons.External /></a>
+                                    
+                                    {/* Mobile Floating Back Button */}
+                                    <button onClick={handleCloseManual} className="lg:hidden absolute top-4 left-4 z-50 bg-black/60 backdrop-blur-md w-11 h-11 rounded-full flex items-center justify-center shadow-2xl active:scale-90 border border-white/10">
+                                        <Icons.ChevronLeft />
+                                    </button>
+                                    
+                                    <div className="absolute top-4 right-4 flex flex-col gap-3">
+                                        <a href={selectedManual.url} target="_blank" className="bg-black/60 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-2xl active:scale-90 flex items-center justify-center hover:bg-white/20 transition-all">
+                                            <Icons.External />
+                                        </a>
+                                        <button onClick={sendEmail} className="bg-black/60 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-2xl active:scale-90 flex items-center justify-center hover:bg-white/20 transition-all">
+                                            <Icons.Upload />
+                                        </button>
                                     </div>
                                 </div>
                             ) : (
@@ -339,7 +374,7 @@
                                                 onClick={() => setIsMenuOpen(true)} 
                                                 className="lg:hidden w-full bg-red-600 px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-red-950/40 active:scale-95 transition-all border border-white/10"
                                             >
-                                                Access Library
+                                                Explore Technical Library
                                             </button>
                                         )}
                                     </div>
